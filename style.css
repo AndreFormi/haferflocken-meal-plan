@@ -15,7 +15,7 @@ html, body {
 }
 
 .card {
-  max-width: 1120px;
+  max-width: 1160px;
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.96);
   border: 2px solid #bfe0f7;
@@ -59,6 +59,7 @@ label {
 
 select,
 input[type="time"],
+input[type="text"],
 button {
   width: 100%;
   padding: 12px;
@@ -68,12 +69,14 @@ button {
 }
 
 input[type="time"],
+input[type="text"],
 select {
   background: #ffffff;
 }
 
 select:focus,
-input[type="time"]:focus {
+input[type="time"]:focus,
+input[type="text"]:focus {
   outline: none;
   border-color: #116dff;
   box-shadow: 0 0 0 3px rgba(17, 109, 255, 0.15);
@@ -159,9 +162,9 @@ button:hover {
   margin-top: 14px;
 }
 
-@media (min-width: 920px) {
+@media (min-width: 980px) {
   .grid {
-    grid-template-columns: 1fr 1.2fr;
+    grid-template-columns: 0.95fr 1.25fr;
   }
 }
 
@@ -258,12 +261,6 @@ td.num {
   white-space: nowrap;
 }
 
-.action-group {
-  display: flex;
-  gap: 6px;
-  flex-wrap: nowrap;
-}
-
 .info-line {
   margin-top: 10px;
 }
@@ -278,16 +275,117 @@ td.num {
   font-weight: 800;
 }
 
+.planner-grid-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid #d6e7f5;
+  border-radius: 14px;
+  background: #fff;
+  margin-top: 10px;
+}
+
+.planner-grid {
+  display: grid;
+  grid-template-columns: 120px repeat(7, minmax(145px, 1fr));
+  min-width: 1135px;
+}
+
+.grid-head,
+.grid-side,
+.grid-cell {
+  border-right: 1px solid #eef4fa;
+  border-bottom: 1px solid #eef4fa;
+  padding: 10px;
+}
+
+.grid-head {
+  background: #edf6ff;
+  color: #1d4f86;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.grid-side {
+  background: #f8fbff;
+  color: #1d4f86;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.grid-cell {
+  min-height: 110px;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.grid-cell:hover {
+  background: #f7fbff;
+}
+
+.grid-empty {
+  color: #a3b2c2;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.grid-time {
+  font-size: 13px;
+  color: #116dff;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.grid-recipe {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #263646;
+}
+
+.grid-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: nowrap;
+}
+
+.grid-mini-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  border: 1px solid #c8ddf0;
+  background: #ffffff;
+  color: #1f2a37;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: none;
+}
+
 @media (max-width: 700px) {
   th, td {
     padding: 8px;
     font-size: 13px;
   }
 
-  .small-btn {
+  .small-btn,
+  .grid-mini-btn {
     min-width: 34px;
     height: 34px;
     padding: 4px 8px;
     font-size: 12px;
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+
+  h2 {
+    font-size: 20px;
   }
 }
