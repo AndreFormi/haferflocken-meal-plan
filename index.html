@@ -45,23 +45,23 @@
           <input id="time" type="time" />
 
           <label for="categoryFilter">Categoria (facoltativa)</label>
-<select id="categoryFilter">
-  <option value="Tutte">Tutte</option>
-</select>
+          <select id="categoryFilter">
+            <option value="Tutte">Tutte</option>
+          </select>
 
-<div class="filter-or">oppure</div>
+          <div class="filter-or">oppure</div>
 
-<label for="recipeSearch">Cerca ricetta (facoltativo)</label>
-<input id="recipeSearch" type="text" placeholder="Scrivi nome o ingrediente, es. banana" />
+          <label for="recipeSearch">Cerca ricetta (facoltativo)</label>
+          <input id="recipeSearch" type="text" placeholder="Scrivi nome o ingrediente, es. banana" />
 
-<p class="muted filter-note">
-  Puoi usare la categoria, la ricerca, oppure entrambi. Poi seleziona la ricetta qui sotto.
-</p>
+          <p class="muted filter-note">
+            Puoi usare la categoria, la ricerca, oppure entrambi. Poi seleziona la ricetta qui sotto.
+          </p>
 
-<label for="recipe">Ricetta</label>
-<select id="recipe">
-  <option value="">Seleziona ricetta…</option>
-</select>
+          <label for="recipe">Ricetta</label>
+          <select id="recipe">
+            <option value="">Seleziona ricetta…</option>
+          </select>
 
           <button id="addMealBtn">Salva pasto</button>
 
@@ -120,7 +120,9 @@
 
           <div id="planView" class="tab-view hidden">
             <h2>📅 Planner settimanale</h2>
-            <p class="muted">Vista a griglia della settimana. Tocca una cella per modificare o eliminare quel pasto.</p>
+            <p class="muted">Vista a griglia della settimana. Tocca una cella per compilare, modificare o eliminare quel pasto.</p>
+
+            <p class="scroll-hint">← scorri lateralmente per vedere tutta la settimana →</p>
 
             <div class="planner-grid-wrap">
               <div id="plannerGrid" class="planner-grid"></div>
