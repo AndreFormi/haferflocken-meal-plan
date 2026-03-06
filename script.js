@@ -1,4 +1,5 @@
-const STORAGE_KEY = "piano_pasti_avena_v1";
+const STORAGE_KEY_PLAN = "piano_pasti_avena_v2";
+const STORAGE_KEY_CART = "piano_pasti_avena_carrello_v2";
 
 const DAY_ORDER = {
   "Lunedì": 1,
@@ -22,6 +23,7 @@ const mealEl = document.getElementById("meal");
 const timeEl = document.getElementById("time");
 const recipeEl = document.getElementById("recipe");
 const msgEl = document.getElementById("msg");
+const nextMealBoxEl = document.getElementById("nextMealBox");
 
 const shoppingView = document.getElementById("shoppingView");
 const planView = document.getElementById("planView");
@@ -41,8 +43,13 @@ init();
 
 function init() {
   loadRecipes();
+  renderAll();
+}
+
+function renderAll() {
   renderShopping();
   renderPlan();
+  renderNextMeal();
 }
 
 function loadRecipes() {
@@ -91,7 +98,7 @@ function escapeHtml(str) {
 }
 
 function getStoredPlan() {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw = localStorage.getItem(STORAGE_KEY_PLAN);
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
@@ -102,7 +109,22 @@ function getStoredPlan() {
 }
 
 function saveStoredPlan(plan) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(plan));
+  localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(plan));
+}
+
+function getStoredCartKeys() {
+  const raw = localStorage.getItem(STORAGE_KEY_CART);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStoredCartKeys(keys) {
+  localStorage.setItem(STORAGE_KEY_CART, JSON.stringify(keys));
 }
 
 function addMeal() {
@@ -117,6 +139,31 @@ function addMeal() {
   }
 
   const plan = getStoredPlan();
+  const existingIndex = plan.findIndex(item => item.day === day && item.meal === meal);
+
+  if (existingIndex !== -1) {
+    const confirmed = window.confirm(
+      `Per ${day} esiste già un ${meal}. Vuoi sostituirlo con la nuova ricetta?`
+    );
+    if (!confirmed) {
+      setMsg("ℹ️ Nessuna modifica effettuata.", "");
+      return;
+    }
+
+    plan[existingIndex] = {
+      ...plan[existingIndex],
+      time,
+      recipe,
+      updatedAt: new Date().toISOString()
+    };
+
+    saveStoredPlan(plan);
+    cleanCartFromUnavailableIngredients();
+    renderAll();
+    showTab("shopping");
+    setMsg("✅ Pasto sostituito.", "ok");
+    return;
+  }
 
   const entry = {
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
@@ -129,34 +176,10 @@ function addMeal() {
 
   plan.push(entry);
   saveStoredPlan(plan);
-
-  renderShopping();
-  renderPlan();
+  cleanCartFromUnavailableIngredients();
+  renderAll();
   showTab("shopping");
   setMsg("✅ Pasto aggiunto.", "ok");
-}
-
-function renderShopping() {
-  const tbody = document.querySelector("#shoppingTable tbody");
-  tbody.innerHTML = "";
-
-  const plan = getStoredPlan();
-  const shoppingList = buildShoppingList(plan);
-
-  if (shoppingList.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="3" class="muted">Nessun ingrediente ancora. Aggiungi prima un pasto.</td></tr>`;
-    return;
-  }
-
-  shoppingList.forEach(item => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${escapeHtml(item.name)}</td>
-      <td class="num">${escapeHtml(formatQty(item.total))}</td>
-      <td>${escapeHtml(item.unit)}</td>
-    `;
-    tbody.appendChild(tr);
-  });
 }
 
 function buildShoppingList(plan) {
@@ -167,9 +190,10 @@ function buildShoppingList(plan) {
     if (!recipe) return;
 
     recipe.ingredients.forEach(ingredient => {
-      const key = `${ingredient.name.toLowerCase()}||${ingredient.unit.toLowerCase()}`;
+      const key = buildIngredientKey(ingredient.name, ingredient.unit);
       if (!map.has(key)) {
         map.set(key, {
+          key,
           name: ingredient.name,
           unit: ingredient.unit,
           total: 0
@@ -187,6 +211,73 @@ function buildShoppingList(plan) {
   return Array.from(map.values()).sort((a, b) =>
     a.name.localeCompare(b.name, "it")
   );
+}
+
+function renderShopping() {
+  const shoppingTbody = document.querySelector("#shoppingTable tbody");
+  const cartTbody = document.querySelector("#cartTable tbody");
+  shoppingTbody.innerHTML = "";
+  cartTbody.innerHTML = "";
+
+  const plan = getStoredPlan();
+  const fullShoppingList = buildShoppingList(plan);
+  const cartKeys = getStoredCartKeys();
+
+  const cartItems = fullShoppingList.filter(item => cartKeys.includes(item.key));
+  const shoppingItems = fullShoppingList.filter(item => !cartKeys.includes(item.key));
+
+  if (shoppingItems.length === 0) {
+    shoppingTbody.innerHTML = `<tr><td colspan="4" class="muted">Nessun ingrediente da comprare in questo momento.</td></tr>`;
+  } else {
+    shoppingItems.forEach(item => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(item.name)}</td>
+        <td class="num">${escapeHtml(formatQty(item.total))}</td>
+        <td>${escapeHtml(item.unit)}</td>
+        <td><button class="small-btn" type="button" onclick="moveToCart('${escapeHtml(item.key)}')">Metti nel carrello</button></td>
+      `;
+      shoppingTbody.appendChild(tr);
+    });
+  }
+
+  if (cartItems.length === 0) {
+    cartTbody.innerHTML = `<tr><td colspan="4" class="muted">Il carrello è vuoto.</td></tr>`;
+  } else {
+    cartItems.forEach(item => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(item.name)}</td>
+        <td class="num">${escapeHtml(formatQty(item.total))}</td>
+        <td>${escapeHtml(item.unit)}</td>
+        <td><button class="small-btn" type="button" onclick="removeFromCart('${escapeHtml(item.key)}')">Rimuovi</button></td>
+      `;
+      cartTbody.appendChild(tr);
+    });
+  }
+}
+
+function moveToCart(key) {
+  const cartKeys = getStoredCartKeys();
+  if (!cartKeys.includes(key)) {
+    cartKeys.push(key);
+    saveStoredCartKeys(cartKeys);
+  }
+  renderShopping();
+  setMsg("✅ Ingrediente spostato nel carrello.", "ok");
+}
+
+function removeFromCart(key) {
+  const updated = getStoredCartKeys().filter(item => item !== key);
+  saveStoredCartKeys(updated);
+  renderShopping();
+  setMsg("✅ Ingrediente rimosso dal carrello.", "ok");
+}
+
+function cleanCartFromUnavailableIngredients() {
+  const activeKeys = buildShoppingList(getStoredPlan()).map(item => item.key);
+  const cleaned = getStoredCartKeys().filter(key => activeKeys.includes(key));
+  saveStoredCartKeys(cleaned);
 }
 
 function formatQty(value) {
@@ -214,13 +305,26 @@ function renderPlan() {
       <td>${escapeHtml(entry.recipe)}</td>
       <td>
         <div class="action-group">
-          <button class="small-btn" type="button" onclick="exportMealToICS('${escapeHtml(entry.id)}')">📅</button>
+          <button class="small-btn" type="button" onclick="prefillMeal('${escapeHtml(entry.id)}')">Modifica</button>
           <button class="small-btn" type="button" onclick="deleteMeal('${escapeHtml(entry.id)}')">🗑️</button>
         </div>
       </td>
     `;
     tbody.appendChild(tr);
   });
+}
+
+function prefillMeal(id) {
+  const entry = getStoredPlan().find(item => item.id === id);
+  if (!entry) return;
+
+  dayEl.value = entry.day;
+  mealEl.value = entry.meal;
+  timeEl.value = entry.time;
+  recipeEl.value = entry.recipe;
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  setMsg("ℹ️ Modifica i campi e premi “Salva pasto” per sostituire questo slot.", "");
 }
 
 function sortPlanEntries(a, b) {
@@ -235,29 +339,33 @@ function deleteMeal(id) {
 
   const plan = getStoredPlan().filter(item => item.id !== id);
   saveStoredPlan(plan);
-  renderShopping();
-  renderPlan();
+  cleanCartFromUnavailableIngredients();
+  renderAll();
   setMsg("✅ Pasto eliminato.", "ok");
 }
 
 function clearAll() {
-  const confirmed = window.confirm("Vuoi svuotare tutto il piano e la lista della spesa?");
+  const confirmed = window.confirm("Vuoi svuotare tutto il piano, la lista e il carrello?");
   if (!confirmed) return;
 
-  localStorage.removeItem(STORAGE_KEY);
-  renderShopping();
-  renderPlan();
+  localStorage.removeItem(STORAGE_KEY_PLAN);
+  localStorage.removeItem(STORAGE_KEY_CART);
+  renderAll();
   setMsg("✅ Tutto cancellato.", "ok");
 }
 
 function copyShopping() {
-  const shoppingList = buildShoppingList(getStoredPlan());
-  if (shoppingList.length === 0) {
-    setMsg("⚠️ La lista della spesa è vuota.", "err");
+  const plan = getStoredPlan();
+  const fullShoppingList = buildShoppingList(plan);
+  const cartKeys = getStoredCartKeys();
+  const shoppingItems = fullShoppingList.filter(item => !cartKeys.includes(item.key));
+
+  if (shoppingItems.length === 0) {
+    setMsg("⚠️ Non ci sono ingredienti da copiare.", "err");
     return;
   }
 
-  const text = shoppingList
+  const text = shoppingItems
     .map(item => `${item.name} — ${formatQty(item.total)} ${item.unit}`.trim())
     .join("\n");
 
@@ -266,65 +374,29 @@ function copyShopping() {
     .catch(() => setMsg("⚠️ Copia non disponibile. Copia manualmente.", "err"));
 }
 
-function exportMealToICS(id) {
+function renderNextMeal() {
+  const next = getNextMealEntry();
+  if (!next) {
+    nextMealBoxEl.classList.add("hidden");
+    nextMealBoxEl.textContent = "";
+    return;
+  }
+
+  nextMealBoxEl.classList.remove("hidden");
+  nextMealBoxEl.textContent = `⏰ Prossimo pasto: ${next.day} alle ${next.time} — ${next.meal}: ${next.recipe}`;
+}
+
+function getNextMealEntry() {
   const plan = getStoredPlan();
-  const entry = plan.find(item => item.id === id);
+  if (!plan.length) return null;
 
-  if (!entry) {
-    setMsg("❌ Pasto non trovato.", "err");
-    return;
-  }
+  const entriesWithDate = plan.map(entry => ({
+    ...entry,
+    nextDate: getNextDateForItalianWeekday(entry.day, entry.time)
+  }));
 
-  const startDate = getNextDateForItalianWeekday(entry.day, entry.time);
-  const endDate = new Date(startDate.getTime() + 30 * 60000);
-
-  const title = `${entry.meal}: ${entry.recipe}`;
-  const description = `Creato con il piano pasti interattivo con avena.`;
-
-  const icsContent = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//Piano Pasti Avena//IT",
-    "BEGIN:VEVENT",
-    `UID:${entry.id}`,
-    `DTSTAMP:${formatICSDate(new Date())}`,
-    `DTSTART:${formatICSDate(startDate)}`,
-    `DTEND:${formatICSDate(endDate)}`,
-    `SUMMARY:${escapeICSText(title)}`,
-    `DESCRIPTION:${escapeICSText(description)}`,
-    "END:VEVENT",
-    "END:VCALENDAR"
-  ].join("\r\n");
-
-  const fileName = `${slugify(entry.recipe)}.ics`;
-  const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
-  const file = new File([blob], fileName, { type: "text/calendar" });
-
-  if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-    navigator.share({
-      files: [file],
-      title: title,
-      text: "Esporta evento calendario"
-    }).then(() => {
-      setMsg("✅ Evento calendario condiviso.", "ok");
-    }).catch(() => {
-      setMsg("⚠️ Condivisione annullata o non disponibile.", "err");
-    });
-    return;
-  }
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.style.display = "none";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-  setMsg("✅ Evento calendario esportato.", "ok");
+  entriesWithDate.sort((a, b) => a.nextDate - b.nextDate);
+  return entriesWithDate[0] || null;
 }
 
 function getNextDateForItalianWeekday(dayName, timeValue) {
@@ -358,29 +430,6 @@ function getNextDateForItalianWeekday(dayName, timeValue) {
   return result;
 }
 
-function formatICSDate(date) {
-  const yyyy = date.getUTCFullYear();
-  const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const dd = String(date.getUTCDate()).padStart(2, "0");
-  const hh = String(date.getUTCHours()).padStart(2, "0");
-  const min = String(date.getUTCMinutes()).padStart(2, "0");
-  const ss = String(date.getUTCSeconds()).padStart(2, "0");
-  return `${yyyy}${mm}${dd}T${hh}${min}${ss}Z`;
-}
-
-function escapeICSText(str) {
-  return String(str)
-    .replace(/\\/g, "\\\\")
-    .replace(/\n/g, "\\n")
-    .replace(/,/g, "\\,")
-    .replace(/;/g, "\\;");
-}
-
-function slugify(str) {
-  return String(str)
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+function buildIngredientKey(name, unit) {
+  return `${String(name).toLowerCase()}||${String(unit).toLowerCase()}`;
 }
