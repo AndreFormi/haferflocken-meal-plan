@@ -1,102 +1,102 @@
 const RECIPES_DATA = [
   {
-    title: "Klassischer Haferbrei mit Beeren",
+    title: "Porridge classico ai frutti di bosco",
     ingredients: [
-      { name: "Haferflocken", qty: 100, unit: "g" },
-      { name: "Milch oder pflanzliche Alternative", qty: 300, unit: "ml" },
-      { name: "Honig", qty: 1, unit: "TL" },
-      { name: "Gemischte Beeren", qty: 100, unit: "g" },
-      { name: "Zimt", qty: 1, unit: "Prise" }
+      { name: "Fiocchi d’avena", qty: 100, unit: "g" },
+      { name: "Latte o alternativa vegetale", qty: 300, unit: "ml" },
+      { name: "Miele", qty: 1, unit: "cucchiaino" },
+      { name: "Frutti di bosco misti", qty: 100, unit: "g" },
+      { name: "Cannella", qty: 1, unit: "pizzico" }
     ]
   },
   {
-    title: "Apfel-Zimt-Haferflocken",
+    title: "Fiocchi d’avena mela e cannella",
     ingredients: [
-      { name: "Haferflocken", qty: 100, unit: "g" },
-      { name: "Wasser oder Milch", qty: 300, unit: "ml" },
-      { name: "Apfel", qty: 1, unit: "Stk" },
-      { name: "Zimt", qty: 1, unit: "TL" },
-      { name: "Ahornsirup", qty: 1, unit: "TL" }
+      { name: "Fiocchi d’avena", qty: 100, unit: "g" },
+      { name: "Acqua o latte", qty: 300, unit: "ml" },
+      { name: "Mela", qty: 1, unit: "pz" },
+      { name: "Cannella", qty: 1, unit: "cucchiaino" },
+      { name: "Sciroppo d’acero", qty: 1, unit: "cucchiaino" }
     ]
   },
   {
-    title: "Schoko-Bananen-Haferflocken",
+    title: "Fiocchi d’avena banana e cacao",
     ingredients: [
-      { name: "Haferflocken", qty: 100, unit: "g" },
-      { name: "Milch oder pflanzliche Alternative", qty: 300, unit: "ml" },
-      { name: "Banane", qty: 1, unit: "Stk" },
-      { name: "Kakaopulver", qty: 1, unit: "EL" },
-      { name: "Honig", qty: 1, unit: "TL" }
+      { name: "Fiocchi d’avena", qty: 100, unit: "g" },
+      { name: "Latte o alternativa vegetale", qty: 300, unit: "ml" },
+      { name: "Banana", qty: 1, unit: "pz" },
+      { name: "Cacao amaro", qty: 1, unit: "cucchiaio" },
+      { name: "Miele", qty: 1, unit: "cucchiaino" }
     ]
   },
   {
-    title: "Bircher Müsli",
+    title: "Bircher muesli",
     ingredients: [
-      { name: "Haferflocken", qty: 100, unit: "g" },
-      { name: "Apfelsaft", qty: 200, unit: "ml" },
-      { name: "Apfel", qty: 1, unit: "Stk" },
-      { name: "Naturjoghurt", qty: 100, unit: "g" },
-      { name: "Honig", qty: 1, unit: "TL" }
+      { name: "Fiocchi d’avena", qty: 100, unit: "g" },
+      { name: "Succo di mela", qty: 200, unit: "ml" },
+      { name: "Mela", qty: 1, unit: "pz" },
+      { name: "Yogurt naturale", qty: 100, unit: "g" },
+      { name: "Miele", qty: 1, unit: "cucchiaino" }
     ]
   },
   {
-    title: "Übernacht-Hafer mit Chiasamen",
+    title: "Overnight oats con semi di chia",
     ingredients: [
-      { name: "Haferflocken", qty: 100, unit: "g" },
-      { name: "Mandelmilch", qty: 200, unit: "ml" },
-      { name: "Chiasamen", qty: 1, unit: "EL" },
-      { name: "Vanilleextrakt", qty: 1, unit: "TL" },
-      { name: "Ahornsirup", qty: 1, unit: "EL" }
+      { name: "Fiocchi d’avena", qty: 100, unit: "g" },
+      { name: "Latte di mandorla", qty: 200, unit: "ml" },
+      { name: "Semi di chia", qty: 1, unit: "cucchiaio" },
+      { name: "Estratto di vaniglia", qty: 1, unit: "cucchiaino" },
+      { name: "Sciroppo d’acero", qty: 1, unit: "cucchiaio" }
     ]
   },
   {
-    title: "Haferflocken-Pancakes",
+    title: "Pancake di avena",
     ingredients: [
-      { name: "Haferflocken", qty: 100, unit: "g" },
-      { name: "Ei", qty: 1, unit: "Stk" },
-      { name: "Milch", qty: 100, unit: "ml" },
-      { name: "Backpulver", qty: 1, unit: "TL" },
-      { name: "Banane", qty: 1, unit: "Stk" }
+      { name: "Fiocchi d’avena", qty: 100, unit: "g" },
+      { name: "Uovo", qty: 1, unit: "pz" },
+      { name: "Latte", qty: 100, unit: "ml" },
+      { name: "Lievito per dolci", qty: 1, unit: "cucchiaino" },
+      { name: "Banana", qty: 1, unit: "pz" }
     ]
   },
   {
-    title: "Haferflocken-Smoothie-Bowl",
+    title: "Smoothie bowl con avena",
     ingredients: [
-      { name: "Haferflocken", qty: 50, unit: "g" },
-      { name: "Banane", qty: 1, unit: "Stk" },
-      { name: "Gefrorene Beeren", qty: 200, unit: "g" },
-      { name: "Mandelmilch", qty: 200, unit: "ml" },
-      { name: "Chiasamen", qty: 1, unit: "EL" }
+      { name: "Fiocchi d’avena", qty: 50, unit: "g" },
+      { name: "Banana", qty: 1, unit: "pz" },
+      { name: "Frutti di bosco surgelati", qty: 200, unit: "g" },
+      { name: "Latte di mandorla", qty: 200, unit: "ml" },
+      { name: "Semi di chia", qty: 1, unit: "cucchiaio" }
     ]
   },
   {
-    title: "Mango-Kokos-Haferflocken",
+    title: "Fiocchi d’avena mango e cocco",
     ingredients: [
-      { name: "Haferflocken", qty: 100, unit: "g" },
-      { name: "Kokosmilch", qty: 300, unit: "ml" },
-      { name: "Mango", qty: 1, unit: "Stk" },
-      { name: "Kokosraspeln", qty: 1, unit: "EL" },
-      { name: "Agavendicksaft", qty: 1, unit: "TL" }
+      { name: "Fiocchi d’avena", qty: 100, unit: "g" },
+      { name: "Latte di cocco", qty: 300, unit: "ml" },
+      { name: "Mango", qty: 1, unit: "pz" },
+      { name: "Cocco grattugiato", qty: 1, unit: "cucchiaio" },
+      { name: "Sciroppo d’agave", qty: 1, unit: "cucchiaino" }
     ]
   },
   {
-    title: "Protein-Haferflocken mit Erdnussbutter",
+    title: "Avena proteica con burro di arachidi",
     ingredients: [
-      { name: "Haferflocken", qty: 100, unit: "g" },
-      { name: "Milch oder pflanzliche Alternative", qty: 300, unit: "ml" },
-      { name: "Erdnussbutter", qty: 1, unit: "EL" },
-      { name: "Kakaopulver", qty: 1, unit: "TL" },
-      { name: "Honig", qty: 1, unit: "TL" }
+      { name: "Fiocchi d’avena", qty: 100, unit: "g" },
+      { name: "Latte o alternativa vegetale", qty: 300, unit: "ml" },
+      { name: "Burro di arachidi", qty: 1, unit: "cucchiaio" },
+      { name: "Cacao amaro", qty: 1, unit: "cucchiaino" },
+      { name: "Miele", qty: 1, unit: "cucchiaino" }
     ]
   },
   {
-    title: "Karottenkuchen-Haferflocken",
+    title: "Avena gusto torta di carote",
     ingredients: [
-      { name: "Haferflocken", qty: 100, unit: "g" },
-      { name: "Milch oder pflanzliche Alternative", qty: 300, unit: "ml" },
-      { name: "Karotte", qty: 1, unit: "Stk" },
-      { name: "Zimt", qty: 1, unit: "TL" },
-      { name: "Walnüsse", qty: 1, unit: "EL" }
+      { name: "Fiocchi d’avena", qty: 100, unit: "g" },
+      { name: "Latte o alternativa vegetale", qty: 300, unit: "ml" },
+      { name: "Carota", qty: 1, unit: "pz" },
+      { name: "Cannella", qty: 1, unit: "cucchiaino" },
+      { name: "Noci", qty: 1, unit: "cucchiaio" }
     ]
   }
 ];
