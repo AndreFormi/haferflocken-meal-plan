@@ -1,19 +1,19 @@
-const STORAGE_KEY = "haferflocken_meal_plan_v1";
+const STORAGE_KEY = "piano_pasti_avena_v1";
 
 const DAY_ORDER = {
-  "Montag": 1,
-  "Dienstag": 2,
-  "Mittwoch": 3,
-  "Donnerstag": 4,
-  "Freitag": 5,
-  "Samstag": 6,
-  "Sonntag": 7
+  "Lunedì": 1,
+  "Martedì": 2,
+  "Mercoledì": 3,
+  "Giovedì": 4,
+  "Venerdì": 5,
+  "Sabato": 6,
+  "Domenica": 7
 };
 
 const DEFAULT_TIMES = {
-  "Frühstück": "08:00",
-  "Mittagessen": "13:00",
-  "Abendessen": "19:00",
+  "Colazione": "08:00",
+  "Pranzo": "13:00",
+  "Cena": "19:00",
   "Snack": "16:30"
 };
 
@@ -46,7 +46,7 @@ function init() {
 }
 
 function loadRecipes() {
-  recipeEl.innerHTML = `<option value="">Rezept wählen…</option>`;
+  recipeEl.innerHTML = `<option value="">Seleziona ricetta…</option>`;
   RECIPES_DATA.forEach(recipe => {
     const option = document.createElement("option");
     option.value = recipe.title;
@@ -112,7 +112,7 @@ function addMeal() {
   const time = timeEl.value.trim() || DEFAULT_TIMES[meal] || "12:00";
 
   if (!day || !meal || !recipe) {
-    setMsg("❌ Bitte Tag, Mahlzeit und Rezept auswählen.", "err");
+    setMsg("❌ Seleziona giorno, pasto e ricetta.", "err");
     return;
   }
 
@@ -133,7 +133,7 @@ function addMeal() {
   renderShopping();
   renderPlan();
   showTab("shopping");
-  setMsg("✅ Mahlzeit hinzugefügt.", "ok");
+  setMsg("✅ Pasto aggiunto.", "ok");
 }
 
 function renderShopping() {
@@ -144,7 +144,7 @@ function renderShopping() {
   const shoppingList = buildShoppingList(plan);
 
   if (shoppingList.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="3" class="muted">Noch keine Zutaten vorhanden. Füge zuerst eine Mahlzeit hinzu.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="3" class="muted">Nessun ingrediente ancora. Aggiungi prima un pasto.</td></tr>`;
     return;
   }
 
@@ -185,7 +185,7 @@ function buildShoppingList(plan) {
   });
 
   return Array.from(map.values()).sort((a, b) =>
-    a.name.localeCompare(b.name, "de")
+    a.name.localeCompare(b.name, "it")
   );
 }
 
@@ -201,7 +201,7 @@ function renderPlan() {
   const sorted = [...plan].sort(sortPlanEntries);
 
   if (sorted.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="muted">Dein Plan ist noch leer.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="muted">Il piano è ancora vuoto.</td></tr>`;
     return;
   }
 
@@ -230,30 +230,30 @@ function sortPlanEntries(a, b) {
 }
 
 function deleteMeal(id) {
-  const confirmed = window.confirm("Möchtest du diese Mahlzeit wirklich löschen?");
+  const confirmed = window.confirm("Vuoi eliminare questo pasto?");
   if (!confirmed) return;
 
   const plan = getStoredPlan().filter(item => item.id !== id);
   saveStoredPlan(plan);
   renderShopping();
   renderPlan();
-  setMsg("✅ Mahlzeit gelöscht.", "ok");
+  setMsg("✅ Pasto eliminato.", "ok");
 }
 
 function clearAll() {
-  const confirmed = window.confirm("Möchtest du den gesamten Plan und die Einkaufsliste löschen?");
+  const confirmed = window.confirm("Vuoi svuotare tutto il piano e la lista della spesa?");
   if (!confirmed) return;
 
   localStorage.removeItem(STORAGE_KEY);
   renderShopping();
   renderPlan();
-  setMsg("✅ Alles wurde gelöscht.", "ok");
+  setMsg("✅ Tutto cancellato.", "ok");
 }
 
 function copyShopping() {
   const shoppingList = buildShoppingList(getStoredPlan());
   if (shoppingList.length === 0) {
-    setMsg("⚠️ Die Einkaufsliste ist leer.", "err");
+    setMsg("⚠️ La lista della spesa è vuota.", "err");
     return;
   }
 
@@ -262,8 +262,8 @@ function copyShopping() {
     .join("\n");
 
   navigator.clipboard.writeText(text)
-    .then(() => setMsg("✅ Einkaufsliste in die Zwischenablage kopiert.", "ok"))
-    .catch(() => setMsg("⚠️ Kopieren nicht möglich. Bitte manuell kopieren.", "err"));
+    .then(() => setMsg("✅ Lista copiata negli appunti.", "ok"))
+    .catch(() => setMsg("⚠️ Copia non disponibile. Copia manualmente.", "err"));
 }
 
 function exportMealToICS(id) {
@@ -271,20 +271,20 @@ function exportMealToICS(id) {
   const entry = plan.find(item => item.id === id);
 
   if (!entry) {
-    setMsg("❌ Mahlzeit nicht gefunden.", "err");
+    setMsg("❌ Pasto non trovato.", "err");
     return;
   }
 
-  const startDate = getNextDateForGermanWeekday(entry.day, entry.time);
+  const startDate = getNextDateForItalianWeekday(entry.day, entry.time);
   const endDate = new Date(startDate.getTime() + 30 * 60000);
 
   const title = `${entry.meal}: ${entry.recipe}`;
-  const description = `Erstellt mit dem interaktiven Haferflocken-Mahlzeitenplan.`;
+  const description = `Creato con il piano pasti interattivo con avena.`;
 
   const icsContent = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Haferflocken Meal Plan//DE",
+    "PRODID:-//Piano Pasti Avena//IT",
     "BEGIN:VEVENT",
     `UID:${entry.id}`,
     `DTSTAMP:${formatICSDate(new Date())}`,
@@ -296,29 +296,46 @@ function exportMealToICS(id) {
     "END:VCALENDAR"
   ].join("\r\n");
 
+  const fileName = `${slugify(entry.recipe)}.ics`;
   const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
+  const file = new File([blob], fileName, { type: "text/calendar" });
 
+  if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({
+      files: [file],
+      title: title,
+      text: "Esporta evento calendario"
+    }).then(() => {
+      setMsg("✅ Evento calendario condiviso.", "ok");
+    }).catch(() => {
+      setMsg("⚠️ Condivisione annullata o non disponibile.", "err");
+    });
+    return;
+  }
+
+  const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${slugify(entry.recipe)}.ics`;
+  link.download = fileName;
+  link.style.display = "none";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  URL.revokeObjectURL(url);
 
-  setMsg("✅ Kalendereintrag exportiert.", "ok");
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  setMsg("✅ Evento calendario esportato.", "ok");
 }
 
-function getNextDateForGermanWeekday(dayName, timeValue) {
+function getNextDateForItalianWeekday(dayName, timeValue) {
   const weekdayMap = {
-    "Sonntag": 0,
-    "Montag": 1,
-    "Dienstag": 2,
-    "Mittwoch": 3,
-    "Donnerstag": 4,
-    "Freitag": 5,
-    "Samstag": 6
+    "Domenica": 0,
+    "Lunedì": 1,
+    "Martedì": 2,
+    "Mercoledì": 3,
+    "Giovedì": 4,
+    "Venerdì": 5,
+    "Sabato": 6
   };
 
   const targetDay = weekdayMap[dayName];
