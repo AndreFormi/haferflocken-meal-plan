@@ -11,12 +11,14 @@
     <div class="card">
       <h1>🥣 Piano pasti interattivo con avena</h1>
       <p class="muted">
-        Aggiungi i pasti, crea il tuo piano settimanale e aggiorna automaticamente la lista della spesa.
+        Organizza la settimana, genera la lista della spesa e tieni traccia di cosa hai già preso.
       </p>
+
+      <div id="nextMealBox" class="next-meal-box hidden"></div>
 
       <div class="grid">
         <section class="panel">
-          <h2>➕ Aggiungi pasto</h2>
+          <h2>➕ Aggiungi o sostituisci un pasto</h2>
 
           <label for="day">Giorno</label>
           <select id="day">
@@ -47,7 +49,7 @@
             <option value="">Seleziona ricetta…</option>
           </select>
 
-          <button id="addMealBtn">Aggiungi pasto</button>
+          <button id="addMealBtn">Salva pasto</button>
 
           <div class="row">
             <button type="button" class="btn-blue" id="refreshShoppingBtn">🔄 Aggiorna lista</button>
@@ -68,8 +70,8 @@
           </div>
 
           <div id="shoppingView" class="tab-view">
-            <h2>🛒 Lista della spesa</h2>
-            <p class="muted">Calcolata automaticamente in base ai pasti inseriti.</p>
+            <h2>🛒 Da comprare</h2>
+            <p class="muted">Ingredienti totali in base ai pasti inseriti.</p>
 
             <div class="box">
               <table id="shoppingTable">
@@ -78,6 +80,7 @@
                     <th>Ingrediente</th>
                     <th class="num">Quantità</th>
                     <th>Unità</th>
+                    <th>Azione</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -87,11 +90,28 @@
             <div class="row">
               <button type="button" class="btn-blue" id="copyShoppingBtn">📋 Copia lista</button>
             </div>
+
+            <h2 class="subsection-title">🛍️ Nel carrello</h2>
+            <p class="muted">Ingredienti che hai già preso al supermercato.</p>
+
+            <div class="box">
+              <table id="cartTable">
+                <thead>
+                  <tr>
+                    <th>Ingrediente</th>
+                    <th class="num">Quantità</th>
+                    <th>Unità</th>
+                    <th>Azione</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
 
           <div id="planView" class="tab-view hidden">
             <h2>📅 Piano settimanale</h2>
-            <p class="muted">Giorno, orario, pasto e ricetta in un colpo d’occhio.</p>
+            <p class="muted">Un solo slot per ogni tipo di pasto, per ogni giorno.</p>
 
             <div class="box">
               <table id="planTable">
@@ -109,7 +129,7 @@
             </div>
 
             <p class="muted info-line">
-              Con 🗑️ elimini un pasto. Con 📅 esporti un evento calendario.
+              Con 🗑️ elimini il pasto. Se inserisci lo stesso slot, l’app può sostituirlo.
             </p>
           </div>
         </section>
