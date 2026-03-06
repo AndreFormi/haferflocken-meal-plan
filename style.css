@@ -10,6 +10,16 @@ html, body {
   color: #1f2a37;
 }
 
+.app,
+.card,
+.grid,
+.panel,
+.tab-view {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 .app {
   padding: 16px;
 }
@@ -22,6 +32,13 @@ html, body {
   border-radius: 22px;
   padding: 20px;
   box-shadow: 0 10px 28px rgba(27, 85, 140, 0.12);
+}
+
+.card,
+.panel,
+.box,
+.planner-grid-wrap {
+  min-width: 0;
 }
 
 h1 {
@@ -275,19 +292,44 @@ td.num {
   font-weight: 800;
 }
 
+.filter-or {
+  margin-top: 12px;
+  text-align: center;
+  font-weight: 800;
+  color: #116dff;
+  font-size: 14px;
+}
+
+.filter-note {
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
+.scroll-hint {
+  margin: 8px 0 6px 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #587089;
+}
+
 .planner-grid-wrap {
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
   border: 1px solid #d6e7f5;
   border-radius: 14px;
   background: #fff;
   margin-top: 10px;
+  cursor: grab;
 }
 
 .planner-grid {
   display: grid;
-  grid-template-columns: 120px repeat(7, minmax(145px, 1fr));
-  min-width: 1135px;
+  grid-template-columns: 120px repeat(7, minmax(150px, 1fr));
+  min-width: 1170px;
 }
 
 .grid-head,
@@ -365,18 +407,6 @@ td.num {
   font-weight: 800;
   cursor: pointer;
   box-shadow: none;
-}
-.filter-or {
-  margin-top: 12px;
-  text-align: center;
-  font-weight: 800;
-  color: #116dff;
-  font-size: 14px;
-}
-
-.filter-note {
-  margin-top: 8px;
-  margin-bottom: 6px;
 }
 
 @media (max-width: 700px) {
