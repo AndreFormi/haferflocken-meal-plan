@@ -11,7 +11,7 @@
     <div class="card">
       <h1>🥣 Piano pasti interattivo con avena</h1>
       <p class="muted">
-        Organizza la settimana, genera la lista della spesa e tieni traccia di cosa hai già preso.
+        Organizza la settimana, filtra le ricette, genera la lista della spesa e tieni traccia di ciò che hai già preso.
       </p>
 
       <div id="nextMealBox" class="next-meal-box hidden"></div>
@@ -44,6 +44,14 @@
           <label for="time">Orario</label>
           <input id="time" type="time" />
 
+          <label for="categoryFilter">Categoria ricette</label>
+          <select id="categoryFilter">
+            <option value="Tutte">Tutte</option>
+          </select>
+
+          <label for="recipeSearch">Cerca ricetta</label>
+          <input id="recipeSearch" type="text" placeholder="Scrivi per cercare, es. banana" />
+
           <label for="recipe">Ricetta</label>
           <select id="recipe">
             <option value="">Seleziona ricetta…</option>
@@ -61,7 +69,7 @@
         <section class="panel">
           <div class="tabs">
             <button class="tab active" id="tabShoppingBtn" type="button">🛒 Lista della spesa</button>
-            <button class="tab" id="tabPlanBtn" type="button">📅 Piano settimanale</button>
+            <button class="tab" id="tabPlanBtn" type="button">📅 Planner settimanale</button>
           </div>
 
           <div id="shoppingView" class="tab-view">
@@ -105,26 +113,15 @@
           </div>
 
           <div id="planView" class="tab-view hidden">
-            <h2>📅 Piano settimanale</h2>
-            <p class="muted">Un solo slot per ogni tipo di pasto, per ogni giorno.</p>
+            <h2>📅 Planner settimanale</h2>
+            <p class="muted">Vista a griglia della settimana. Tocca una cella per modificare o eliminare quel pasto.</p>
 
-            <div class="box">
-              <table id="planTable">
-                <thead>
-                  <tr>
-                    <th>Giorno</th>
-                    <th>Orario</th>
-                    <th>Pasto</th>
-                    <th>Ricetta</th>
-                    <th>Az.</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
+            <div class="planner-grid-wrap">
+              <div id="plannerGrid" class="planner-grid"></div>
             </div>
 
             <p class="muted info-line">
-              Con ✏️ modifichi il pasto. Con 🗑️ lo elimini.
+              In ogni giorno puoi avere un solo slot per Colazione, Pranzo, Cena e Snack.
             </p>
           </div>
         </section>
