@@ -52,11 +52,6 @@
           <button id="addMealBtn">Salva pasto</button>
 
           <div class="row">
-            <button type="button" class="btn-blue" id="refreshShoppingBtn">🔄 Aggiorna lista</button>
-            <button type="button" class="btn-gray" id="refreshPlanBtn">📅 Aggiorna piano</button>
-          </div>
-
-          <div class="row">
             <button type="button" class="btn-gray" id="clearAllBtn">🧹 Svuota tutto</button>
           </div>
 
@@ -77,10 +72,10 @@
               <table id="shoppingTable">
                 <thead>
                   <tr>
-                    <th>Ingrediente</th>
-                    <th class="num">Quantità</th>
-                    <th>Unità</th>
-                    <th>Azione</th>
+                    <th class="col-ingrediente">Ingrediente</th>
+                    <th class="num col-qta">Q.tà</th>
+                    <th class="col-unita">Unità</th>
+                    <th class="col-azione">Az.</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -98,10 +93,10 @@
               <table id="cartTable">
                 <thead>
                   <tr>
-                    <th>Ingrediente</th>
-                    <th class="num">Quantità</th>
-                    <th>Unità</th>
-                    <th>Azione</th>
+                    <th class="col-ingrediente">Ingrediente</th>
+                    <th class="num col-qta">Q.tà</th>
+                    <th class="col-unita">Unità</th>
+                    <th class="col-azione">Az.</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -121,7 +116,7 @@
                     <th>Orario</th>
                     <th>Pasto</th>
                     <th>Ricetta</th>
-                    <th>Azioni</th>
+                    <th>Az.</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -129,7 +124,7 @@
             </div>
 
             <p class="muted info-line">
-              Con 🗑️ elimini il pasto. Se inserisci lo stesso slot, l’app può sostituirlo.
+              Con ✏️ modifichi il pasto. Con 🗑️ lo elimini.
             </p>
           </div>
         </section>
