@@ -31,8 +31,6 @@ const tabShoppingBtn = document.getElementById("tabShoppingBtn");
 const tabPlanBtn = document.getElementById("tabPlanBtn");
 
 document.getElementById("addMealBtn").addEventListener("click", addMeal);
-document.getElementById("refreshShoppingBtn").addEventListener("click", renderShopping);
-document.getElementById("refreshPlanBtn").addEventListener("click", renderPlan);
 document.getElementById("clearAllBtn").addEventListener("click", clearAll);
 document.getElementById("copyShoppingBtn").addEventListener("click", copyShopping);
 tabShoppingBtn.addEventListener("click", () => showTab("shopping"));
@@ -182,6 +180,10 @@ function addMeal() {
   setMsg("✅ Pasto aggiunto.", "ok");
 }
 
+function buildIngredientKey(name, unit) {
+  return `${String(name).toLowerCase()}||${String(unit).toLowerCase()}`;
+}
+
 function buildShoppingList(plan) {
   const map = new Map();
 
@@ -235,7 +237,7 @@ function renderShopping() {
         <td>${escapeHtml(item.name)}</td>
         <td class="num">${escapeHtml(formatQty(item.total))}</td>
         <td>${escapeHtml(item.unit)}</td>
-        <td><button class="small-btn" type="button" onclick="moveToCart('${escapeHtml(item.key)}')">Metti nel carrello</button></td>
+        <td><button class="small-btn" type="button" title="Metti nel carrello" onclick="moveToCart('${escapeHtml(item.key)}')">🛒+</button></td>
       `;
       shoppingTbody.appendChild(tr);
     });
@@ -250,7 +252,7 @@ function renderShopping() {
         <td>${escapeHtml(item.name)}</td>
         <td class="num">${escapeHtml(formatQty(item.total))}</td>
         <td>${escapeHtml(item.unit)}</td>
-        <td><button class="small-btn" type="button" onclick="removeFromCart('${escapeHtml(item.key)}')">Rimuovi</button></td>
+        <td><button class="small-btn" type="button" title="Rimuovi dal carrello" onclick="removeFromCart('${escapeHtml(item.key)}')">−</button></td>
       `;
       cartTbody.appendChild(tr);
     });
@@ -305,8 +307,8 @@ function renderPlan() {
       <td>${escapeHtml(entry.recipe)}</td>
       <td>
         <div class="action-group">
-          <button class="small-btn" type="button" onclick="prefillMeal('${escapeHtml(entry.id)}')">Modifica</button>
-          <button class="small-btn" type="button" onclick="deleteMeal('${escapeHtml(entry.id)}')">🗑️</button>
+          <button class="small-btn" type="button" title="Modifica" onclick="prefillMeal('${escapeHtml(entry.id)}')">✏️</button>
+          <button class="small-btn" type="button" title="Elimina" onclick="deleteMeal('${escapeHtml(entry.id)}')">🗑️</button>
         </div>
       </td>
     `;
@@ -428,8 +430,4 @@ function getNextDateForItalianWeekday(dayName, timeValue) {
   }
 
   return result;
-}
-
-function buildIngredientKey(name, unit) {
-  return `${String(name).toLowerCase()}||${String(unit).toLowerCase()}`;
 }
