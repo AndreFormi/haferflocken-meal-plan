@@ -15,7 +15,7 @@ html, body {
 }
 
 .card {
-  max-width: 1100px;
+  max-width: 1120px;
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.96);
   border: 2px solid #bfe0f7;
@@ -37,6 +37,10 @@ h2 {
   font-size: 22px;
   color: #116dff;
   font-weight: 800;
+}
+
+.subsection-title {
+  margin-top: 20px;
 }
 
 .muted {
@@ -157,7 +161,7 @@ button:hover {
 
 @media (min-width: 920px) {
   .grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1.2fr;
   }
 }
 
@@ -233,4 +237,14 @@ td.num {
 
 .info-line {
   margin-top: 10px;
+}
+
+.next-meal-box {
+  margin: 0 0 16px 0;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fff6db 0%, #ffeab0 100%);
+  border: 1px solid #f0d57a;
+  color: #7a5200;
+  font-weight: 800;
 }
