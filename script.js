@@ -1,5 +1,8 @@
-const STORAGE_KEY_PLAN = "piano_pasti_avena_v2";
-const STORAGE_KEY_CART = "piano_pasti_avena_carrello_v2";
+const STORAGE_KEY_PLAN = "piano_pasti_avena_v3";
+const STORAGE_KEY_CART = "piano_pasti_avena_carrello_v3";
+
+const DAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
+const MEALS = ["Colazione", "Pranzo", "Cena", "Snack"];
 
 const DAY_ORDER = {
   "Lunedì": 1,
@@ -22,8 +25,11 @@ const dayEl = document.getElementById("day");
 const mealEl = document.getElementById("meal");
 const timeEl = document.getElementById("time");
 const recipeEl = document.getElementById("recipe");
+const recipeSearchEl = document.getElementById("recipeSearch");
+const categoryFilterEl = document.getElementById("categoryFilter");
 const msgEl = document.getElementById("msg");
 const nextMealBoxEl = document.getElementById("nextMealBox");
+const plannerGridEl = document.getElementById("plannerGrid");
 
 const shoppingView = document.getElementById("shoppingView");
 const planView = document.getElementById("planView");
@@ -36,28 +42,64 @@ document.getElementById("copyShoppingBtn").addEventListener("click", copyShoppin
 tabShoppingBtn.addEventListener("click", () => showTab("shopping"));
 tabPlanBtn.addEventListener("click", () => showTab("plan"));
 mealEl.addEventListener("change", handleMealTimeDefault);
+categoryFilterEl.addEventListener("change", renderRecipeOptions);
+recipeSearchEl.addEventListener("input", renderRecipeOptions);
 
 init();
 
 function init() {
-  loadRecipes();
+  loadCategories();
+  renderRecipeOptions();
   renderAll();
 }
 
 function renderAll() {
   renderShopping();
-  renderPlan();
+  renderPlannerGrid();
   renderNextMeal();
 }
 
-function loadRecipes() {
+function loadCategories() {
+  const categories = Array.from(new Set(RECIPES_DATA.map(r => r.category))).sort((a, b) =>
+    a.localeCompare(b, "it")
+  );
+
+  categoryFilterEl.innerHTML = `<option value="Tutte">Tutte</option>`;
+  categories.forEach(cat => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    categoryFilterEl.appendChild(option);
+  });
+}
+
+function renderRecipeOptions() {
+  const selectedCategory = categoryFilterEl.value || "Tutte";
+  const search = (recipeSearchEl.value || "").trim().toLowerCase();
+
+  const filtered = RECIPES_DATA.filter(recipe => {
+    const categoryMatch = selectedCategory === "Tutte" || recipe.category === selectedCategory;
+    const textMatch =
+      !search ||
+      recipe.title.toLowerCase().includes(search) ||
+      recipe.ingredients.some(ing => ing.name.toLowerCase().includes(search));
+    return categoryMatch && textMatch;
+  });
+
+  const currentValue = recipeEl.value;
   recipeEl.innerHTML = `<option value="">Seleziona ricetta…</option>`;
-  RECIPES_DATA.forEach(recipe => {
+
+  filtered.forEach(recipe => {
     const option = document.createElement("option");
     option.value = recipe.title;
-    option.textContent = recipe.title;
+    option.textContent = `${recipe.title} · ${recipe.category}`;
     recipeEl.appendChild(option);
   });
+
+  const stillExists = filtered.some(r => r.title === currentValue);
+  if (stillExists) {
+    recipeEl.value = currentValue;
+  }
 }
 
 function handleMealTimeDefault() {
@@ -158,7 +200,7 @@ function addMeal() {
     saveStoredPlan(plan);
     cleanCartFromUnavailableIngredients();
     renderAll();
-    showTab("shopping");
+    showTab("plan");
     setMsg("✅ Pasto sostituito.", "ok");
     return;
   }
@@ -176,7 +218,7 @@ function addMeal() {
   saveStoredPlan(plan);
   cleanCartFromUnavailableIngredients();
   renderAll();
-  showTab("shopping");
+  showTab("plan");
   setMsg("✅ Pasto aggiunto.", "ok");
 }
 
@@ -204,9 +246,7 @@ function buildShoppingList(plan) {
 
       const obj = map.get(key);
       const qty = Number(ingredient.qty);
-      if (!Number.isNaN(qty)) {
-        obj.total += qty;
-      }
+      if (!Number.isNaN(qty)) obj.total += qty;
     });
   });
 
@@ -221,8 +261,7 @@ function renderShopping() {
   shoppingTbody.innerHTML = "";
   cartTbody.innerHTML = "";
 
-  const plan = getStoredPlan();
-  const fullShoppingList = buildShoppingList(plan);
+  const fullShoppingList = buildShoppingList(getStoredPlan());
   const cartKeys = getStoredCartKeys();
 
   const cartItems = fullShoppingList.filter(item => cartKeys.includes(item.key));
@@ -286,39 +325,67 @@ function formatQty(value) {
   return Number.isInteger(value) ? String(value) : String(Math.round(value * 100) / 100);
 }
 
-function renderPlan() {
-  const tbody = document.querySelector("#planTable tbody");
-  tbody.innerHTML = "";
+function renderPlannerGrid() {
+  plannerGridEl.innerHTML = "";
 
   const plan = getStoredPlan();
-  const sorted = [...plan].sort(sortPlanEntries);
 
-  if (sorted.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="muted">Il piano è ancora vuoto.</td></tr>`;
-    return;
-  }
+  plannerGridEl.appendChild(createDiv("grid-head", ""));
+  DAYS.forEach(day => plannerGridEl.appendChild(createDiv("grid-head", day)));
 
-  sorted.forEach(entry => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${escapeHtml(entry.day)}</td>
-      <td>${escapeHtml(entry.time)}</td>
-      <td>${escapeHtml(entry.meal)}</td>
-      <td>${escapeHtml(entry.recipe)}</td>
-      <td>
-        <div class="action-group">
-          <button class="small-btn" type="button" title="Modifica" onclick="prefillMeal('${escapeHtml(entry.id)}')">✏️</button>
-          <button class="small-btn" type="button" title="Elimina" onclick="deleteMeal('${escapeHtml(entry.id)}')">🗑️</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(tr);
+  MEALS.forEach(meal => {
+    plannerGridEl.appendChild(createDiv("grid-side", meal));
+
+    DAYS.forEach(day => {
+      const entry = plan.find(item => item.day === day && item.meal === meal);
+      const cell = document.createElement("div");
+      cell.className = "grid-cell";
+
+      if (!entry) {
+        cell.innerHTML = `<div class="grid-empty">Vuoto</div>`;
+        cell.addEventListener("click", () => {
+          dayEl.value = day;
+          mealEl.value = meal;
+          if (!timeEl.value && DEFAULT_TIMES[meal]) timeEl.value = DEFAULT_TIMES[meal];
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          setMsg(`ℹ️ Hai selezionato ${meal} di ${day}. Ora scegli la ricetta e salva.`, "");
+        });
+      } else {
+        cell.innerHTML = `
+          <div class="grid-time">${escapeHtml(entry.time)}</div>
+          <div class="grid-recipe">${escapeHtml(entry.recipe)}</div>
+          <div class="grid-actions">
+            <button class="grid-mini-btn" type="button" title="Modifica" onclick="prefillMeal('${escapeHtml(entry.id)}')">✏️</button>
+            <button class="grid-mini-btn" type="button" title="Elimina" onclick="deleteMeal('${escapeHtml(entry.id)}')">🗑️</button>
+          </div>
+        `;
+      }
+
+      plannerGridEl.appendChild(cell);
+    });
   });
+}
+
+function createDiv(className, text) {
+  const div = document.createElement("div");
+  div.className = className;
+  div.textContent = text;
+  return div;
 }
 
 function prefillMeal(id) {
   const entry = getStoredPlan().find(item => item.id === id);
   if (!entry) return;
+
+  const recipeObj = RECIPES_DATA.find(r => r.title === entry.recipe);
+  if (recipeObj) {
+    categoryFilterEl.value = recipeObj.category || "Tutte";
+  } else {
+    categoryFilterEl.value = "Tutte";
+  }
+
+  recipeSearchEl.value = "";
+  renderRecipeOptions();
 
   dayEl.value = entry.day;
   mealEl.value = entry.meal;
@@ -327,12 +394,6 @@ function prefillMeal(id) {
 
   window.scrollTo({ top: 0, behavior: "smooth" });
   setMsg("ℹ️ Modifica i campi e premi “Salva pasto” per sostituire questo slot.", "");
-}
-
-function sortPlanEntries(a, b) {
-  const dayDiff = (DAY_ORDER[a.day] || 99) - (DAY_ORDER[b.day] || 99);
-  if (dayDiff !== 0) return dayDiff;
-  return String(a.time).localeCompare(String(b.time));
 }
 
 function deleteMeal(id) {
@@ -357,8 +418,7 @@ function clearAll() {
 }
 
 function copyShopping() {
-  const plan = getStoredPlan();
-  const fullShoppingList = buildShoppingList(plan);
+  const fullShoppingList = buildShoppingList(getStoredPlan());
   const cartKeys = getStoredCartKeys();
   const shoppingItems = fullShoppingList.filter(item => !cartKeys.includes(item.key));
 
