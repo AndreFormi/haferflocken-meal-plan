@@ -2,10 +2,11 @@
   box-sizing: border-box;
 }
 
-body {
+html, body {
   margin: 0;
+  overflow-x: hidden;
   font-family: Arial, sans-serif;
-  background: #f7f9fc;
+  background: linear-gradient(180deg, #eaf6ff 0%, #d6ecfb 100%);
   color: #1f2a37;
 }
 
@@ -16,25 +17,30 @@ body {
 .card {
   max-width: 1100px;
   margin: 0 auto;
-  background: #ffffff;
-  border: 1px solid #e0e6ef;
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.96);
+  border: 2px solid #bfe0f7;
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 10px 28px rgba(27, 85, 140, 0.12);
 }
 
 h1 {
   margin: 0 0 10px 0;
-  font-size: 28px;
+  font-size: 30px;
+  line-height: 1.1;
+  color: #ff1c1c;
+  font-weight: 900;
 }
 
 h2 {
   margin: 0 0 8px 0;
   font-size: 22px;
+  color: #116dff;
+  font-weight: 800;
 }
 
 .muted {
-  color: #6b7c8c;
+  color: #587089;
   font-size: 13px;
   line-height: 1.45;
   margin: 6px 0 14px 0;
@@ -43,7 +49,8 @@ h2 {
 label {
   display: block;
   margin-top: 12px;
-  font-weight: 700;
+  font-weight: 800;
+  color: #1d3b5c;
 }
 
 select,
@@ -51,28 +58,37 @@ input[type="time"],
 button {
   width: 100%;
   padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #ccd6e2;
+  border-radius: 14px;
+  border: 1px solid #b9d5ec;
   font-size: 16px;
 }
 
 input[type="time"],
 select {
-  background: #fff;
+  background: #ffffff;
+}
+
+select:focus,
+input[type="time"]:focus {
+  outline: none;
+  border-color: #116dff;
+  box-shadow: 0 0 0 3px rgba(17, 109, 255, 0.15);
 }
 
 button {
   margin-top: 14px;
   border: none;
-  background: #c62828;
+  background: linear-gradient(180deg, #ff2b2b 0%, #e31515 100%);
   color: #fff;
-  font-weight: 800;
+  font-weight: 900;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 14px rgba(227, 21, 21, 0.22);
 }
 
 button:hover {
-  opacity: 0.92;
+  opacity: 0.96;
+  transform: translateY(-1px);
 }
 
 .row {
@@ -89,22 +105,24 @@ button:hover {
 }
 
 .btn-blue {
-  background: #0f3d75;
+  background: linear-gradient(180deg, #1f7cff 0%, #116dff 100%);
+  box-shadow: 0 6px 14px rgba(17, 109, 255, 0.22);
 }
 
 .btn-gray {
-  background: #455a64;
+  background: linear-gradient(180deg, #5f7fa1 0%, #486684 100%);
+  box-shadow: 0 6px 14px rgba(72, 102, 132, 0.2);
 }
 
 .ok {
   margin-top: 12px;
-  color: #1b5e20;
+  color: #0f7a2f;
   font-weight: 800;
 }
 
 .err {
   margin-top: 12px;
-  color: #b71c1c;
+  color: #c21818;
   font-weight: 800;
 }
 
@@ -118,15 +136,16 @@ button:hover {
 .tab {
   flex: 1;
   min-width: 180px;
-  background: #eef2f7;
-  color: #0f3d75;
-  border: 1px solid #d7e0ea;
+  background: #eef7ff;
+  color: #116dff;
+  border: 1px solid #c9e2f7;
+  box-shadow: none;
 }
 
 .tab.active {
-  background: #0f3d75;
+  background: linear-gradient(180deg, #1f7cff 0%, #116dff 100%);
   color: #fff;
-  border-color: #0f3d75;
+  border-color: #116dff;
 }
 
 .grid {
@@ -143,34 +162,45 @@ button:hover {
 }
 
 .panel {
-  border: 1px solid #e0e6ef;
-  border-radius: 16px;
+  border: 2px solid #d6ebf9;
+  border-radius: 18px;
   padding: 16px;
-  background: #fff;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
 }
 
 .box {
-  overflow: auto;
-  border: 1px solid #e0e6ef;
-  border-radius: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid #d6e7f5;
+  border-radius: 14px;
   margin-top: 10px;
+  background: #fff;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 thead tr {
-  background: #f2f6fb;
+  background: #edf6ff;
 }
 
 th,
 td {
   padding: 10px;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid #eef4fa;
   vertical-align: middle;
   text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+th {
+  color: #1d4f86;
+  font-weight: 800;
 }
 
 th.num,
@@ -185,13 +215,14 @@ td.num {
 .small-btn {
   padding: 8px 10px;
   border-radius: 10px;
-  border: 1px solid #ccd6e2;
-  background: #fff;
+  border: 1px solid #c8ddf0;
+  background: #ffffff;
   color: #1f2a37;
   font-weight: 800;
   cursor: pointer;
   width: auto;
   margin-top: 0;
+  box-shadow: none;
 }
 
 .action-group {
