@@ -97,9 +97,7 @@ function renderRecipeOptions() {
   });
 
   const stillExists = filtered.some(r => r.title === currentValue);
-  if (stillExists) {
-    recipeEl.value = currentValue;
-  }
+  if (stillExists) recipeEl.value = currentValue;
 }
 
 function handleMealTimeDefault() {
