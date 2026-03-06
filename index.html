@@ -44,18 +44,24 @@
           <label for="time">Orario</label>
           <input id="time" type="time" />
 
-          <label for="categoryFilter">Categoria ricette</label>
-          <select id="categoryFilter">
-            <option value="Tutte">Tutte</option>
-          </select>
+          <label for="categoryFilter">Categoria (facoltativa)</label>
+<select id="categoryFilter">
+  <option value="Tutte">Tutte</option>
+</select>
 
-          <label for="recipeSearch">Cerca ricetta</label>
-          <input id="recipeSearch" type="text" placeholder="Scrivi per cercare, es. banana" />
+<div class="filter-or">oppure</div>
 
-          <label for="recipe">Ricetta</label>
-          <select id="recipe">
-            <option value="">Seleziona ricetta…</option>
-          </select>
+<label for="recipeSearch">Cerca ricetta (facoltativo)</label>
+<input id="recipeSearch" type="text" placeholder="Scrivi nome o ingrediente, es. banana" />
+
+<p class="muted filter-note">
+  Puoi usare la categoria, la ricerca, oppure entrambi. Poi seleziona la ricetta qui sotto.
+</p>
+
+<label for="recipe">Ricetta</label>
+<select id="recipe">
+  <option value="">Seleziona ricetta…</option>
+</select>
 
           <button id="addMealBtn">Salva pasto</button>
 
