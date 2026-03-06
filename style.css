@@ -185,7 +185,7 @@ button:hover {
 table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 thead tr {
@@ -205,6 +205,12 @@ td {
 th {
   color: #1d4f86;
   font-weight: 800;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+td {
+  font-size: 14px;
 }
 
 th.num,
@@ -212,12 +218,33 @@ td.num {
   text-align: right;
 }
 
+.col-ingrediente {
+  width: 44%;
+}
+
+.col-qta {
+  width: 14%;
+}
+
+.col-unita {
+  width: 16%;
+}
+
+.col-azione {
+  width: 26%;
+}
+
 .hidden {
   display: none;
 }
 
 .small-btn {
-  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 6px 10px;
   border-radius: 10px;
   border: 1px solid #c8ddf0;
   background: #ffffff;
@@ -227,12 +254,14 @@ td.num {
   width: auto;
   margin-top: 0;
   box-shadow: none;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .action-group {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
 }
 
 .info-line {
@@ -247,4 +276,18 @@ td.num {
   border: 1px solid #f0d57a;
   color: #7a5200;
   font-weight: 800;
+}
+
+@media (max-width: 700px) {
+  th, td {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .small-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 4px 8px;
+    font-size: 12px;
+  }
 }
