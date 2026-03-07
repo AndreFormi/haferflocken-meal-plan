@@ -56,6 +56,17 @@ function init() {
   loadCategories();
   renderRecipeOptions();
   renderAll();
+  registerServiceWorker();
+}
+
+function registerServiceWorker() {
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {
+        console.log("Service worker non registrato.");
+      });
+    });
+  }
 }
 
 function renderAll() {
@@ -102,7 +113,9 @@ function renderRecipeOptions() {
   });
 
   const stillExists = filtered.some(r => r.title === currentValue);
-  if (stillExists) recipeEl.value = currentValue;
+  if (stillExists) {
+    recipeEl.value = currentValue;
+  }
 }
 
 function handleMealTimeDefault() {
@@ -249,7 +262,9 @@ function buildShoppingList(plan) {
 
       const obj = map.get(key);
       const qty = Number(ingredient.qty);
-      if (!Number.isNaN(qty)) obj.total += qty;
+      if (!Number.isNaN(qty)) {
+        obj.total += qty;
+      }
     });
   });
 
@@ -349,7 +364,9 @@ function renderPlannerGrid() {
         cell.addEventListener("click", () => {
           dayEl.value = day;
           mealEl.value = meal;
-          if (!timeEl.value && DEFAULT_TIMES[meal]) timeEl.value = DEFAULT_TIMES[meal];
+          if (!timeEl.value && DEFAULT_TIMES[meal]) {
+            timeEl.value = DEFAULT_TIMES[meal];
+          }
           window.scrollTo({ top: 0, behavior: "smooth" });
           setMsg(`ℹ️ Hai selezionato ${meal} di ${day}. Ora scegli la ricetta e salva.`, "");
         });
