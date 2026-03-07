@@ -350,6 +350,43 @@ td.num {
   background: linear-gradient(180deg, #f8fcff 0%, #eef7ff 100%);
 }
 
+.elegant-install {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.install-badge {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #1f7cff 0%, #116dff 100%);
+  color: #fff;
+  font-weight: 900;
+  font-size: 20px;
+  box-shadow: 0 8px 18px rgba(17, 109, 255, 0.20);
+}
+
+.install-content h3 {
+  margin: 0 0 8px 0;
+}
+
+.install-list {
+  margin: 10px 0 0 18px;
+  padding: 0;
+  color: #587089;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.install-list li + li {
+  margin-top: 6px;
+}
+
 .planner-grid-wrap {
   overflow-x: auto;
   overflow-y: hidden;
@@ -466,5 +503,16 @@ td.num {
 
   h2 {
     font-size: 20px;
+  }
+
+  .elegant-install {
+    grid-template-columns: 1fr;
+  }
+
+  .install-badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    font-size: 16px;
   }
 }
