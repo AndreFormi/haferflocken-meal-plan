@@ -56,6 +56,13 @@ h2 {
   font-weight: 800;
 }
 
+h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: #116dff;
+  font-weight: 800;
+}
+
 .subsection-title {
   margin-top: 20px;
 }
@@ -196,6 +203,8 @@ button:hover {
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
   border: 1px solid #d6e7f5;
   border-radius: 14px;
   margin-top: 10px;
@@ -204,6 +213,7 @@ button:hover {
 
 table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
   table-layout: auto;
 }
@@ -218,8 +228,6 @@ td {
   border-bottom: 1px solid #eef4fa;
   vertical-align: middle;
   text-align: left;
-  word-wrap: break-word;
-  overflow-wrap: anywhere;
 }
 
 th {
@@ -239,19 +247,26 @@ td.num {
 }
 
 .col-ingrediente {
-  width: 44%;
+  width: 42%;
 }
 
 .col-qta {
-  width: 14%;
+  width: 12%;
 }
 
 .col-unita {
-  width: 16%;
+  width: 22%;
 }
 
 .col-azione {
-  width: 26%;
+  width: 24%;
+}
+
+.col-unita,
+.unit-cell {
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
 .hidden {
@@ -311,6 +326,28 @@ td.num {
   font-size: 13px;
   font-weight: 700;
   color: #587089;
+}
+
+.helper-note {
+  margin: 8px 0 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #587089;
+}
+
+.warning-note {
+  margin: 8px 0 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #9a3d00;
+}
+
+.install-box {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid #d6e7f5;
+  background: linear-gradient(180deg, #f8fcff 0%, #eef7ff 100%);
 }
 
 .planner-grid-wrap {
