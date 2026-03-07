@@ -294,7 +294,7 @@ function renderShopping() {
         <td>${escapeHtml(item.name)}</td>
         <td class="num">${escapeHtml(formatQty(item.total))}</td>
         <td class="unit-cell">${escapeHtml(item.unit)}</td>
-        <td><button class="small-btn" type="button" title="Rimuovi dal carrello" onclick="removeFromCart('${escapeHtml(item.key)}')">−</button></td>
+        <td><button class="small-btn" type="button" title="Rimuovi dal carrello" onclick="removeFromCart('${escapeHtml(item.key)}')">🛒−</button></td>
       `;
       cartTbody.appendChild(tr);
     });
@@ -497,7 +497,7 @@ function getNextDateForItalianWeekday(dayName, timeValue) {
 
 async function installApp() {
   if (!deferredPrompt) {
-    setMsg("ℹ️ Installazione non disponibile qui. Apri l’app in Chrome o Safari seguendo le istruzioni qui sotto.", "");
+    setMsg("ℹ️ Installazione non disponibile qui. Apri l’app in un browser compatibile e usa l’opzione del browser per installarla.", "");
     return;
   }
 
