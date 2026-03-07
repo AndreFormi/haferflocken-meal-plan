@@ -4,22 +4,14 @@ const STORAGE_KEY_CART = "piano_pasti_avena_carrello_v3";
 const DAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
 const MEALS = ["Colazione", "Pranzo", "Cena", "Snack"];
 
-const DAY_ORDER = {
-  "Lunedì": 1,
-  "Martedì": 2,
-  "Mercoledì": 3,
-  "Giovedì": 4,
-  "Venerdì": 5,
-  "Sabato": 6,
-  "Domenica": 7
-};
-
 const DEFAULT_TIMES = {
   "Colazione": "08:00",
   "Pranzo": "13:00",
   "Cena": "19:00",
   "Snack": "16:30"
 };
+
+let deferredPrompt = null;
 
 const dayEl = document.getElementById("day");
 const mealEl = document.getElementById("meal");
@@ -30,6 +22,7 @@ const categoryFilterEl = document.getElementById("categoryFilter");
 const msgEl = document.getElementById("msg");
 const nextMealBoxEl = document.getElementById("nextMealBox");
 const plannerGridEl = document.getElementById("plannerGrid");
+const installAppBtn = document.getElementById("installAppBtn");
 
 const shoppingView = document.getElementById("shoppingView");
 const planView = document.getElementById("planView");
@@ -44,6 +37,18 @@ tabPlanBtn.addEventListener("click", () => showTab("plan"));
 mealEl.addEventListener("change", handleMealTimeDefault);
 categoryFilterEl.addEventListener("change", renderRecipeOptions);
 recipeSearchEl.addEventListener("input", renderRecipeOptions);
+
+if (installAppBtn) {
+  installAppBtn.addEventListener("click", installApp);
+}
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (installAppBtn) {
+    installAppBtn.classList.remove("hidden");
+  }
+});
 
 init();
 
@@ -273,7 +278,7 @@ function renderShopping() {
       tr.innerHTML = `
         <td>${escapeHtml(item.name)}</td>
         <td class="num">${escapeHtml(formatQty(item.total))}</td>
-        <td>${escapeHtml(item.unit)}</td>
+        <td class="unit-cell">${escapeHtml(item.unit)}</td>
         <td><button class="small-btn" type="button" title="Metti nel carrello" onclick="moveToCart('${escapeHtml(item.key)}')">🛒+</button></td>
       `;
       shoppingTbody.appendChild(tr);
@@ -288,7 +293,7 @@ function renderShopping() {
       tr.innerHTML = `
         <td>${escapeHtml(item.name)}</td>
         <td class="num">${escapeHtml(formatQty(item.total))}</td>
-        <td>${escapeHtml(item.unit)}</td>
+        <td class="unit-cell">${escapeHtml(item.unit)}</td>
         <td><button class="small-btn" type="button" title="Rimuovi dal carrello" onclick="removeFromCart('${escapeHtml(item.key)}')">−</button></td>
       `;
       cartTbody.appendChild(tr);
@@ -488,4 +493,25 @@ function getNextDateForItalianWeekday(dayName, timeValue) {
   }
 
   return result;
+}
+
+async function installApp() {
+  if (!deferredPrompt) {
+    setMsg("ℹ️ Installazione non disponibile qui. Apri l’app in Chrome o Safari seguendo le istruzioni qui sotto.", "");
+    return;
+  }
+
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
+
+  if (choice && choice.outcome === "accepted") {
+    setMsg("✅ Installazione avviata.", "ok");
+  } else {
+    setMsg("ℹ️ Installazione annullata.", "");
+  }
+
+  deferredPrompt = null;
+  if (installAppBtn) {
+    installAppBtn.classList.add("hidden");
+  }
 }
