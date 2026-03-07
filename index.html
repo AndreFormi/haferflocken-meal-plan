@@ -64,12 +64,36 @@
           </select>
 
           <button id="addMealBtn">Salva pasto</button>
+          <p class="helper-note">
+            Dopo aver scelto giorno, pasto, orario e ricetta, clicca su <strong>Salva pasto</strong> per aggiornare il planner settimanale e la lista della spesa.
+          </p>
 
           <div class="row">
             <button type="button" class="btn-gray" id="clearAllBtn">🧹 Svuota tutto</button>
           </div>
+          <p class="warning-note">
+            Questo comando cancella <strong>tutti i pasti salvati</strong>, la <strong>lista della spesa</strong> e il <strong>carrello</strong>. Usalo solo se vuoi ripartire da zero.
+          </p>
 
           <div id="msg"></div>
+
+          <div class="install-box">
+            <h3>📲 Installa l’app</h3>
+            <p class="muted">
+              Per installare correttamente l’app, aprila preferibilmente in un browser come <strong>Chrome</strong> o <strong>Safari</strong>.
+            </p>
+            <p class="muted">
+              Se l’app si apre dentro <strong>Telegram</strong> o in altri visualizzatori interni, usa il menu del telefono e scegli <strong>Apri nel browser</strong>.
+            </p>
+            <p class="muted">
+              Su <strong>Android</strong>, quando disponibile, puoi usare il pulsante qui sotto oppure il menu del browser per installarla.
+            </p>
+            <p class="muted">
+              Su <strong>iPhone</strong>, apri l’app in <strong>Safari</strong>, tocca <strong>Condividi</strong> e poi scegli <strong>Aggiungi a Home</strong>.
+            </p>
+
+            <button type="button" class="btn-blue hidden" id="installAppBtn">⬇️ Installa app</button>
+          </div>
         </section>
 
         <section class="panel">
@@ -82,6 +106,8 @@
             <h2>🛒 Da comprare</h2>
             <p class="muted">Ingredienti totali in base ai pasti inseriti.</p>
 
+            <p class="scroll-hint">← scorri lateralmente se necessario →</p>
+
             <div class="box">
               <table id="shoppingTable">
                 <thead>
@@ -89,7 +115,7 @@
                     <th class="col-ingrediente">Ingrediente</th>
                     <th class="num col-qta">Q.tà</th>
                     <th class="col-unita">Unità</th>
-                    <th class="col-azione">Az.</th>
+                    <th class="col-azione">Carrello</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -103,6 +129,8 @@
             <h2 class="subsection-title">🛍️ Nel carrello</h2>
             <p class="muted">Ingredienti che hai già preso al supermercato.</p>
 
+            <p class="scroll-hint">← scorri lateralmente se necessario →</p>
+
             <div class="box">
               <table id="cartTable">
                 <thead>
@@ -110,7 +138,7 @@
                     <th class="col-ingrediente">Ingrediente</th>
                     <th class="num col-qta">Q.tà</th>
                     <th class="col-unita">Unità</th>
-                    <th class="col-azione">Az.</th>
+                    <th class="col-azione">Carrello</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
