@@ -357,18 +357,15 @@ td.num {
   align-items: start;
 }
 
-.install-badge {
+.install-badge-img {
   width: 72px;
   height: 72px;
   border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(180deg, #1f7cff 0%, #116dff 100%);
-  color: #fff;
-  font-weight: 900;
-  font-size: 20px;
+  display: block;
+  object-fit: cover;
   box-shadow: 0 8px 18px rgba(17, 109, 255, 0.20);
+  border: 1px solid #cfe5f7;
+  background: #ffffff;
 }
 
 .install-content h3 {
@@ -509,10 +506,9 @@ td.num {
     grid-template-columns: 1fr;
   }
 
-  .install-badge {
+  .install-badge-img {
     width: 56px;
     height: 56px;
     border-radius: 14px;
-    font-size: 16px;
   }
 }
