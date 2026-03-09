@@ -23,6 +23,7 @@ const msgEl = document.getElementById("msg");
 const nextMealBoxEl = document.getElementById("nextMealBox");
 const plannerGridEl = document.getElementById("plannerGrid");
 const installAppBtn = document.getElementById("installAppBtn");
+const installBoxEl = document.querySelector(".install-box");
 
 const shoppingView = document.getElementById("shoppingView");
 const planView = document.getElementById("planView");
@@ -42,27 +43,52 @@ if (installAppBtn) {
   installAppBtn.addEventListener("click", installApp);
 }
 
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  if (installAppBtn) {
-    installAppBtn.classList.remove("hidden");
-  }
-});
-
 init();
 
 function init() {
+  hideInstallBannerIfStandalone();
   loadCategories();
   renderRecipeOptions();
   renderAll();
   registerServiceWorker();
 }
 
+function hideInstallBannerIfStandalone() {
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.matchMedia("(display-mode: fullscreen)").matches ||
+    window.navigator.standalone === true;
+
+  if (isStandalone && installBoxEl) {
+    installBoxEl.classList.add("hidden");
+  }
+}
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  if (installAppBtn && installBoxEl && !installBoxEl.classList.contains("hidden")) {
+    installAppBtn.classList.remove("hidden");
+  }
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredPrompt = null;
+
+  if (installAppBtn) {
+    installAppBtn.classList.add("hidden");
+  }
+
+  if (installBoxEl) {
+    installBoxEl.classList.add("hidden");
+  }
+});
+
 function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {
         console.log("Service worker non registrato.");
       });
     });
@@ -528,6 +554,7 @@ async function installApp() {
   }
 
   deferredPrompt = null;
+
   if (installAppBtn) {
     installAppBtn.classList.add("hidden");
   }
