@@ -11,7 +11,31 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Piano Avena" />
 
+  <script>
+    (function () {
+      try {
+        var isStandalone =
+          window.matchMedia("(display-mode: standalone)").matches ||
+          window.matchMedia("(display-mode: fullscreen)").matches ||
+          window.matchMedia("(display-mode: minimal-ui)").matches ||
+          window.navigator.standalone === true ||
+          document.referrer.startsWith("android-app://") ||
+          localStorage.getItem("piano_pasti_avena_app_installed_hint") === "1";
+
+        if (isStandalone) {
+          document.documentElement.classList.add("app-installed-mode");
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <link rel="stylesheet" href="style.css" />
+
+  <style>
+    html.app-installed-mode .install-box {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
   <div class="app">
