@@ -1,22 +1,38 @@
 {
   "name": "Piano pasti interattivo con avena",
   "short_name": "Piano Avena",
-  "start_url": "/",
-  "scope": "/",
+  "description": "Planner settimanale, lista della spesa e carrello per ricette a base di avena.",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
   "background_color": "#eaf6ff",
   "theme_color": "#116dff",
-  "description": "Planner settimanale, lista della spesa e carrello per ricette a base di avena.",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "./icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
