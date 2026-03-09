@@ -46,21 +46,54 @@ if (installAppBtn) {
 init();
 
 function init() {
-  hideInstallBannerIfStandalone();
   loadCategories();
   renderRecipeOptions();
   renderAll();
   registerServiceWorker();
+
+  updateInstallBannerVisibility();
+
+  window.addEventListener("load", updateInstallBannerVisibility);
+  window.addEventListener("pageshow", updateInstallBannerVisibility);
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      updateInstallBannerVisibility();
+    }
+  });
+
+  const standaloneQuery = window.matchMedia("(display-mode: standalone)");
+  if (standaloneQuery && standaloneQuery.addEventListener) {
+    standaloneQuery.addEventListener("change", updateInstallBannerVisibility);
+  }
 }
 
-function hideInstallBannerIfStandalone() {
-  const isStandalone =
+function registerServiceWorker() {
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {
+        console.log("Service worker non registrato.");
+      });
+    });
+  }
+}
+
+function isRunningAsApp() {
+  return (
     window.matchMedia("(display-mode: standalone)").matches ||
     window.matchMedia("(display-mode: fullscreen)").matches ||
-    window.navigator.standalone === true;
+    window.matchMedia("(display-mode: minimal-ui)").matches ||
+    window.navigator.standalone === true
+  );
+}
 
-  if (isStandalone && installBoxEl) {
+function updateInstallBannerVisibility() {
+  if (!installBoxEl) return;
+
+  if (isRunningAsApp()) {
     installBoxEl.classList.add("hidden");
+  } else {
+    installBoxEl.classList.remove("hidden");
   }
 }
 
@@ -68,7 +101,7 @@ window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
 
-  if (installAppBtn && installBoxEl && !installBoxEl.classList.contains("hidden")) {
+  if (installAppBtn && !isRunningAsApp()) {
     installAppBtn.classList.remove("hidden");
   }
 });
@@ -85,14 +118,33 @@ window.addEventListener("appinstalled", () => {
   }
 });
 
-function registerServiceWorker() {
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(() => {
-        console.log("Service worker non registrato.");
-      });
-    });
+async function installApp() {
+  if (!deferredPrompt) {
+    setMsg(
+      "ℹ️ Installazione non disponibile qui. Apri l’app in un browser compatibile e usa l’opzione del browser per installarla.",
+      ""
+    );
+    return;
   }
+
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
+
+  if (choice && choice.outcome === "accepted") {
+    setMsg("✅ Installazione avviata.", "ok");
+  } else {
+    setMsg("ℹ️ Installazione annullata.", "");
+  }
+
+  deferredPrompt = null;
+
+  if (installAppBtn) {
+    installAppBtn.classList.add("hidden");
+  }
+
+  setTimeout(() => {
+    updateInstallBannerVisibility();
+  }, 500);
 }
 
 function renderAll() {
@@ -536,26 +588,4 @@ function getNextDateForItalianWeekday(dayName, timeValue) {
   }
 
   return result;
-}
-
-async function installApp() {
-  if (!deferredPrompt) {
-    setMsg("ℹ️ Installazione non disponibile qui. Apri l’app in un browser compatibile e usa l’opzione del browser per installarla.", "");
-    return;
-  }
-
-  deferredPrompt.prompt();
-  const choice = await deferredPrompt.userChoice;
-
-  if (choice && choice.outcome === "accepted") {
-    setMsg("✅ Installazione avviata.", "ok");
-  } else {
-    setMsg("ℹ️ Installazione annullata.", "");
-  }
-
-  deferredPrompt = null;
-
-  if (installAppBtn) {
-    installAppBtn.classList.add("hidden");
-  }
 }
