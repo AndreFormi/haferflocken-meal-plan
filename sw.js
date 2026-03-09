@@ -1,4 +1,4 @@
-const CACHE_NAME = "piano-avena-v1";
+const CACHE_NAME = "piano-avena-v2";
 
 const ASSETS = [
   "./",
