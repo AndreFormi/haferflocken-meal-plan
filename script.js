@@ -1,5 +1,6 @@
 const STORAGE_KEY_PLAN = "piano_pasti_avena_v3";
 const STORAGE_KEY_CART = "piano_pasti_avena_carrello_v3";
+const STORAGE_KEY_APP_INSTALLED_HINT = "piano_pasti_avena_app_installed_hint";
 
 const DAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
 const MEALS = ["Colazione", "Pranzo", "Cena", "Snack"];
@@ -62,10 +63,16 @@ function init() {
     }
   });
 
+  window.addEventListener("focus", updateInstallBannerVisibility);
+
   const standaloneQuery = window.matchMedia("(display-mode: standalone)");
   if (standaloneQuery && standaloneQuery.addEventListener) {
     standaloneQuery.addEventListener("change", updateInstallBannerVisibility);
   }
+
+  // ricontrollo ritardato per mobile/browser lenti
+  setTimeout(updateInstallBannerVisibility, 600);
+  setTimeout(updateInstallBannerVisibility, 1500);
 }
 
 function registerServiceWorker() {
@@ -83,14 +90,30 @@ function isRunningAsApp() {
     window.matchMedia("(display-mode: standalone)").matches ||
     window.matchMedia("(display-mode: fullscreen)").matches ||
     window.matchMedia("(display-mode: minimal-ui)").matches ||
-    window.navigator.standalone === true
+    window.navigator.standalone === true ||
+    document.referrer.startsWith("android-app://")
   );
+}
+
+function hasInstallHint() {
+  return localStorage.getItem(STORAGE_KEY_APP_INSTALLED_HINT) === "1";
+}
+
+function setInstallHint() {
+  localStorage.setItem(STORAGE_KEY_APP_INSTALLED_HINT, "1");
+}
+
+function clearInstallHint() {
+  localStorage.removeItem(STORAGE_KEY_APP_INSTALLED_HINT);
 }
 
 function updateInstallBannerVisibility() {
   if (!installBoxEl) return;
 
-  if (isRunningAsApp()) {
+  // regola robusta:
+  // 1) se siamo in standalone => nascondi
+  // 2) se l'utente ha già cliccato installa/appinstalled => nascondi
+  if (isRunningAsApp() || hasInstallHint()) {
     installBoxEl.classList.add("hidden");
   } else {
     installBoxEl.classList.remove("hidden");
@@ -101,13 +124,14 @@ window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
 
-  if (installAppBtn && !isRunningAsApp()) {
+  if (installAppBtn && !isRunningAsApp() && !hasInstallHint()) {
     installAppBtn.classList.remove("hidden");
   }
 });
 
 window.addEventListener("appinstalled", () => {
   deferredPrompt = null;
+  setInstallHint();
 
   if (installAppBtn) {
     installAppBtn.classList.add("hidden");
@@ -120,6 +144,11 @@ window.addEventListener("appinstalled", () => {
 
 async function installApp() {
   if (!deferredPrompt) {
+    // anche qui salviamo il hint, perché alcuni browser installano senza
+    // lanciare eventi in modo perfetto, ma l'utente ha già scelto di usarla come app
+    setInstallHint();
+    updateInstallBannerVisibility();
+
     setMsg(
       "ℹ️ Installazione non disponibile qui. Apri l’app in un browser compatibile e usa l’opzione del browser per installarla.",
       ""
@@ -127,12 +156,17 @@ async function installApp() {
     return;
   }
 
+  // appena clicca installa, salviamo il hint
+  setInstallHint();
+
   deferredPrompt.prompt();
   const choice = await deferredPrompt.userChoice;
 
   if (choice && choice.outcome === "accepted") {
     setMsg("✅ Installazione avviata.", "ok");
   } else {
+    // se annulla, togliamo il flag
+    clearInstallHint();
     setMsg("ℹ️ Installazione annullata.", "");
   }
 
@@ -145,6 +179,10 @@ async function installApp() {
   setTimeout(() => {
     updateInstallBannerVisibility();
   }, 500);
+
+  setTimeout(() => {
+    updateInstallBannerVisibility();
+  }, 1500);
 }
 
 function renderAll() {
