@@ -24,6 +24,10 @@ const msgEl = document.getElementById("msg");
 const nextMealBoxEl = document.getElementById("nextMealBox");
 const plannerGridEl = document.getElementById("plannerGrid");
 
+const copyFallbackEl = document.getElementById("copyFallback");
+const copyAreaEl = document.getElementById("copyArea");
+const selectCopyBtnEl = document.getElementById("selectCopyBtn");
+
 const installBoxEl = document.getElementById("installBox");
 const installAppBtn = document.getElementById("installAppBtn");
 const installAndroidBlock = document.getElementById("installAndroidBlock");
@@ -48,13 +52,16 @@ if (installAppBtn) {
   installAppBtn.addEventListener("click", installApp);
 }
 
+if (selectCopyBtnEl) {
+  selectCopyBtnEl.addEventListener("click", selectCopyText);
+}
+
 init();
 
 function init() {
   loadCategories();
   renderRecipeOptions();
   renderAll();
-  registerServiceWorker();
 
   setupInstallExperience();
   updateInstallBannerVisibility();
@@ -74,16 +81,6 @@ function init() {
 
   setTimeout(updateInstallBannerVisibility, 600);
   setTimeout(updateInstallBannerVisibility, 1500);
-}
-
-function registerServiceWorker() {
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(() => {
-        console.log("Service worker non registrato.");
-      });
-    });
-  }
 }
 
 function isIOS() {
@@ -122,10 +119,14 @@ function setupInstallExperience() {
   if (installIosBlock) installIosBlock.classList.add("hidden");
   if (installGenericBlock) installGenericBlock.classList.add("hidden");
 
-  if (isRunningAsApp() || hasInstallHint()) {
+  if (isRunningAsApp()) {
     if (installBoxEl) installBoxEl.classList.add("hidden");
     return;
   }
+
+  // IMPORTANTE:
+  // se siamo nel browser normale, togliamo il vecchio "ricordo installato"
+  clearInstallHint();
 
   if (isIOS()) {
     if (installIosBlock) installIosBlock.classList.remove("hidden");
@@ -139,12 +140,14 @@ function setupInstallExperience() {
 function updateInstallBannerVisibility() {
   if (!installBoxEl) return;
 
-  if (isRunningAsApp() || hasInstallHint()) {
+  if (isRunningAsApp()) {
     installBoxEl.classList.add("hidden");
     document.documentElement.classList.add("app-installed-mode");
+    setInstallHint();
   } else {
-    installBoxEl.classList.remove("hidden");
     document.documentElement.classList.remove("app-installed-mode");
+    clearInstallHint();
+    installBoxEl.classList.remove("hidden");
   }
 }
 
@@ -152,7 +155,7 @@ window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
 
-  if (installAppBtn && isAndroid() && !isRunningAsApp() && !hasInstallHint()) {
+  if (installAppBtn && isAndroid() && !isRunningAsApp()) {
     installAppBtn.classList.remove("hidden");
   }
 });
@@ -167,14 +170,9 @@ window.addEventListener("appinstalled", () => {
 
 async function installApp() {
   if (!deferredPrompt) {
-    setMsg(
-      "ℹ️ Apri l’app in un browser compatibile e usa l’opzione del browser per installarla.",
-      ""
-    );
+    setMsg("ℹ️ Apri l’app in un browser compatibile e usa l’opzione del browser per installarla.", "");
     return;
   }
-
-  setInstallHint();
 
   deferredPrompt.prompt();
   const choice = await deferredPrompt.userChoice;
@@ -182,7 +180,6 @@ async function installApp() {
   if (choice && choice.outcome === "accepted") {
     setMsg("✅ Installazione avviata.", "ok");
   } else {
-    clearInstallHint();
     setMsg("ℹ️ Installazione annullata.", "");
   }
 
@@ -321,9 +318,7 @@ function addMeal() {
   const existingIndex = plan.findIndex(item => item.day === day && item.meal === meal);
 
   if (existingIndex !== -1) {
-    const confirmed = window.confirm(
-      `Per ${day} esiste già un ${meal}. Vuoi sostituirlo con la nuova ricetta?`
-    );
+    const confirmed = window.confirm(`Per ${day} esiste già un ${meal}. Vuoi sostituirlo con la nuova ricetta?`);
     if (!confirmed) {
       setMsg("ℹ️ Nessuna modifica effettuata.", "");
       return;
@@ -389,9 +384,7 @@ function buildShoppingList(plan) {
     });
   });
 
-  return Array.from(map.values()).sort((a, b) =>
-    a.name.localeCompare(b.name, "it")
-  );
+  return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "it"));
 }
 
 function renderShopping() {
@@ -444,6 +437,7 @@ function moveToCart(key) {
     saveStoredCartKeys(cartKeys);
   }
   renderShopping();
+  hideCopyFallback();
   setMsg("✅ Ingrediente spostato nel carrello.", "ok");
 }
 
@@ -451,6 +445,7 @@ function removeFromCart(key) {
   const updated = getStoredCartKeys().filter(item => item !== key);
   saveStoredCartKeys(updated);
   renderShopping();
+  hideCopyFallback();
   setMsg("✅ Ingrediente rimosso dal carrello.", "ok");
 }
 
@@ -539,6 +534,7 @@ function deleteMeal(id) {
   saveStoredPlan(plan);
   cleanCartFromUnavailableIngredients();
   renderAll();
+  hideCopyFallback();
   setMsg("✅ Pasto eliminato.", "ok");
 }
 
@@ -549,10 +545,11 @@ function clearAll() {
   localStorage.removeItem(STORAGE_KEY_PLAN);
   localStorage.removeItem(STORAGE_KEY_CART);
   renderAll();
+  hideCopyFallback();
   setMsg("✅ Tutto cancellato.", "ok");
 }
 
-function copyShopping() {
+async function copyShopping() {
   const fullShoppingList = buildShoppingList(getStoredPlan());
   const cartKeys = getStoredCartKeys();
   const shoppingItems = fullShoppingList.filter(item => !cartKeys.includes(item.key));
@@ -566,9 +563,36 @@ function copyShopping() {
     .map(item => `${item.name} — ${formatQty(item.total)} ${item.unit}`.trim())
     .join("\n");
 
-  navigator.clipboard.writeText(text)
-    .then(() => setMsg("✅ Lista copiata negli appunti.", "ok"))
-    .catch(() => setMsg("⚠️ Copia non disponibile. Copia manualmente.", "err"));
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      hideCopyFallback();
+      setMsg("✅ Lista copiata negli appunti.", "ok");
+      return;
+    }
+  } catch (err) {}
+
+  showCopyFallback(text);
+}
+
+function showCopyFallback(text) {
+  if (!copyFallbackEl || !copyAreaEl) return;
+  copyAreaEl.value = text;
+  copyFallbackEl.classList.remove("hidden");
+  setMsg("ℹ️ Copia automatica non disponibile. Usa la copia manuale qui sotto.", "");
+}
+
+function hideCopyFallback() {
+  if (!copyFallbackEl || !copyAreaEl) return;
+  copyFallbackEl.classList.add("hidden");
+  copyAreaEl.value = "";
+}
+
+function selectCopyText() {
+  if (!copyAreaEl) return;
+  copyAreaEl.focus();
+  copyAreaEl.select();
+  copyAreaEl.setSelectionRange(0, copyAreaEl.value.length);
 }
 
 function renderNextMeal() {
