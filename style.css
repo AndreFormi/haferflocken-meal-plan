@@ -270,7 +270,7 @@ td.num {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .small-btn {
@@ -382,6 +382,22 @@ td.num {
 
 .install-list li + li {
   margin-top: 6px;
+}
+
+.install-platform-block {
+  margin-top: 8px;
+}
+
+.ios-tip {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #1d4f86;
+  font-weight: 700;
+  background: #edf6ff;
+  border: 1px solid #cfe5f7;
+  border-radius: 12px;
+  padding: 10px 12px;
 }
 
 .planner-grid-wrap {
