@@ -15,294 +15,190 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 
 <link rel="stylesheet" href="style.css">
-
 </head>
-
 
 <body>
 
 <div class="app">
-<div class="card">
+  <div class="card">
 
-<h1>🥣 Piano pasti interattivo con avena</h1>
+    <h1>🥣 Piano pasti interattivo con avena</h1>
 
-<p class="muted">
-Organizza la settimana, genera automaticamente la lista della spesa e tieni traccia di ciò che hai già preso al supermercato.
-</p>
+    <p class="muted">
+      Organizza la settimana, genera automaticamente la lista della spesa e tieni traccia di ciò che hai già preso al supermercato.
+    </p>
 
-<!-- guida rapida -->
+    <div class="next-meal-box">
+      <strong>Come usare l'app</strong>
+      <br><br>
+      1️⃣ Inserisci i pasti della settimana
+      <br>
+      2️⃣ Genera automaticamente la lista della spesa
+      <br>
+      3️⃣ Sposta gli ingredienti nel carrello mentre fai la spesa
+    </div>
 
-<div class="next-meal-box">
+    <div id="nextMealBox" class="next-meal-box hidden"></div>
 
-<strong>Come usare l'app</strong>
+    <div class="grid">
 
-<br><br>
+      <!-- COLONNA SINISTRA -->
+      <section class="panel">
 
-1️⃣ Inserisci i pasti della settimana  
-<br>
-2️⃣ Genera automaticamente la lista della spesa  
-<br>
-3️⃣ Sposta gli ingredienti nel carrello mentre fai la spesa
+        <h2>➕ Aggiungi o modifica un pasto</h2>
 
+        <label for="day">Giorno</label>
+        <select id="day">
+          <option value="">Seleziona…</option>
+          <option>Lunedì</option>
+          <option>Martedì</option>
+          <option>Mercoledì</option>
+          <option>Giovedì</option>
+          <option>Venerdì</option>
+          <option>Sabato</option>
+          <option>Domenica</option>
+        </select>
+
+        <label for="meal">Pasto</label>
+        <select id="meal">
+          <option value="">Seleziona…</option>
+          <option>Colazione</option>
+          <option>Pranzo</option>
+          <option>Cena</option>
+          <option>Snack</option>
+        </select>
+
+        <label for="time">Orario</label>
+        <input id="time" type="time">
+
+        <label for="categoryFilter">Categoria ricetta (facoltativo)</label>
+        <select id="categoryFilter">
+          <option value="Tutte">Tutte</option>
+        </select>
+
+        <div class="filter-or">oppure</div>
+
+        <label for="recipeSearch">Cerca ricetta</label>
+        <input id="recipeSearch" type="text" placeholder="es. banana">
+
+        <label for="recipe">Ricetta</label>
+        <select id="recipe">
+          <option value="">Seleziona ricetta…</option>
+        </select>
+
+        <button id="addMealBtn">Salva pasto</button>
+
+        <p class="helper-note">
+          Dopo aver scelto giorno, pasto e ricetta, clicca su <strong>Salva pasto</strong> per aggiornare automaticamente il piano settimanale e la lista della spesa.
+        </p>
+
+        <div class="row">
+          <button class="btn-gray" id="clearAllBtn">
+            🧹 Svuota tutto
+          </button>
+        </div>
+
+        <p class="warning-note">
+          Questo comando cancella completamente:
+          <br>• planner settimanale
+          <br>• lista della spesa
+          <br>• carrello
+          <br><br>
+          Usalo solo se vuoi ricominciare da zero.
+        </p>
+
+        <div id="msg"></div>
+
+      </section>
+
+      <!-- COLONNA DESTRA -->
+      <section class="panel">
+
+        <div class="tabs">
+          <button class="tab active" id="tabShoppingBtn" type="button">
+            🛍️ Lista della spesa
+          </button>
+
+          <button class="tab" id="tabPlanBtn" type="button">
+            📅 Planner settimanale
+          </button>
+        </div>
+
+        <p class="muted">
+          Prima salva i pasti. Poi controlla il planner oppure usa la lista della spesa per fare acquisti.
+        </p>
+
+        <!-- LISTA SPESA -->
+        <div id="shoppingView" class="tab-view">
+
+          <h2>🛍️ Da comprare</h2>
+
+          <p class="muted">
+            Ingredienti necessari per i pasti della settimana. Usa il pulsante del carrello per spostare qui sotto ciò che hai già preso.
+          </p>
+
+          <div class="box">
+            <table id="shoppingTable">
+              <thead>
+                <tr>
+                  <th class="col-ingrediente">Ingrediente</th>
+                  <th class="num col-qta">Q.tà</th>
+                  <th class="col-unita">Unità</th>
+                  <th class="col-azione">Carrello</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <h2 class="subsection-title">🛒 Nel carrello</h2>
+
+          <p class="muted">
+            Qui trovi gli ingredienti che hai già messo nel carrello. Se serve, puoi rimetterli nella lista con lo stesso pulsante.
+          </p>
+
+          <div class="box">
+            <table id="cartTable">
+              <thead>
+                <tr>
+                  <th class="col-ingrediente">Ingrediente</th>
+                  <th class="num col-qta">Q.tà</th>
+                  <th class="col-unita">Unità</th>
+                  <th class="col-azione">Carrello</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="row">
+            <button class="btn-blue" id="copyShoppingBtn">
+              📋 Copia lista della spesa
+            </button>
+          </div>
+
+        </div>
+
+        <!-- PLANNER -->
+        <div id="planView" class="tab-view hidden">
+
+          <h2>📅 Planner settimanale</h2>
+
+          <div class="planner-grid-wrap">
+            <div id="plannerGrid" class="planner-grid"></div>
+          </div>
+
+          <p class="muted info-line">
+            Ogni giorno può avere un solo slot per colazione, pranzo, cena e snack.
+          </p>
+
+        </div>
+
+      </section>
+
+    </div>
+  </div>
 </div>
-
-
-
-<div id="nextMealBox" class="next-meal-box hidden"></div>
-
-
-
-<div class="grid">
-
-<!-- COLONNA SINISTRA -->
-
-<section class="panel">
-
-<h2>➕ Aggiungi o modifica un pasto</h2>
-
-<label for="day">Giorno</label>
-<select id="day">
-<option value="">Seleziona…</option>
-<option>Lunedì</option>
-<option>Martedì</option>
-<option>Mercoledì</option>
-<option>Giovedì</option>
-<option>Venerdì</option>
-<option>Sabato</option>
-<option>Domenica</option>
-</select>
-
-<label for="meal">Pasto</label>
-<select id="meal">
-<option value="">Seleziona…</option>
-<option>Colazione</option>
-<option>Pranzo</option>
-<option>Cena</option>
-<option>Snack</option>
-</select>
-
-<label for="time">Orario</label>
-<input id="time" type="time">
-
-<label for="categoryFilter">Categoria ricetta (facoltativo)</label>
-<select id="categoryFilter">
-<option value="Tutte">Tutte</option>
-</select>
-
-<div class="filter-or">oppure</div>
-
-<label for="recipeSearch">Cerca ricetta</label>
-<input id="recipeSearch" type="text" placeholder="es. banana">
-
-<label for="recipe">Ricetta</label>
-<select id="recipe">
-<option value="">Seleziona ricetta…</option>
-</select>
-
-<button id="addMealBtn">Salva pasto</button>
-
-<p class="helper-note">
-Dopo aver scelto giorno, pasto e ricetta, clicca su <strong>Salva pasto</strong> per aggiornare automaticamente il piano settimanale e la lista della spesa.
-</p>
-
-
-<div class="row">
-
-<button class="btn-gray" id="clearAllBtn">
-🧹 Svuota tutto
-</button>
-
-</div>
-
-<p class="warning-note">
-
-Questo comando cancella completamente:
-
-• planner settimanale  
-• lista della spesa  
-• carrello
-
-Usalo solo se vuoi ricominciare da zero.
-
-</p>
-
-
-<div id="msg"></div>
-
-</section>
-
-
-
-<!-- COLONNA DESTRA -->
-
-<section class="panel">
-
-<div class="tabs">
-
-<button class="tab active" id="tabShoppingBtn">
-🛍️ Lista della spesa
-</button>
-
-<button class="tab" id="tabPlanBtn">
-📅 Planner settimanale
-</button>
-
-</div>
-
-
-<p class="muted">
-
-Prima salva i pasti.  
-Poi controlla il planner oppure usa la lista della spesa per fare acquisti.
-
-</p>
-
-
-<!-- LISTA SPESA -->
-
-<div id="shoppingView" class="tab-view">
-
-<h2>🛍️ Da comprare</h2>
-
-<p class="muted">
-
-Ingredienti necessari per i pasti della settimana.
-
-</p>
-
-
-<div class="box">
-
-<table id="shoppingTable">
-
-<thead>
-<tr>
-
-<th class="col-ingrediente">Ingrediente</th>
-<th class="num col-qta">Q.tà</th>
-<th class="col-unita">Unità</th>
-<th class="col-azione">Carrello</th>
-
-</tr>
-</thead>
-
-<tbody></tbody>
-
-</table>
-
-</div>
-
-
-<p class="muted">
-
-Premi il pulsante con il carrello per spostare l’ingrediente nella sezione <strong>Nel carrello</strong> quando lo hai già preso.
-
-</p>
-
-
-
-<div class="row">
-
-<button class="btn-blue" id="copyShoppingBtn">
-
-📋 Copia lista
-
-</button>
-
-</div>
-
-
-<p class="muted">
-
-Copia la lista per usarla facilmente mentre fai la spesa.
-
-</p>
-
-
-
-
-<h2 class="subsection-title">
-
-🛒 Nel carrello
-
-</h2>
-
-<p class="muted">
-
-Sposta qui gli ingredienti quando li metti nel carrello al supermercato.
-
-</p>
-
-
-<div class="box">
-
-<table id="cartTable">
-
-<thead>
-<tr>
-
-<th class="col-ingrediente">Ingrediente</th>
-<th class="num col-qta">Q.tà</th>
-<th class="col-unita">Unità</th>
-<th class="col-azione">Carrello</th>
-
-</tr>
-</thead>
-
-<tbody></tbody>
-
-</table>
-
-</div>
-
-
-<p class="muted">
-
-Se hai spostato qualcosa per errore puoi rimetterlo nella lista usando il pulsante del carrello.
-
-</p>
-
-
-</div>
-
-
-
-<!-- PLANNER -->
-
-<div id="planView" class="tab-view hidden">
-
-<h2>📅 Planner settimanale</h2>
-
-<p class="muted">
-
-Qui puoi visualizzare e modificare i pasti della settimana.
-
-</p>
-
-
-<div class="planner-grid-wrap">
-
-<div id="plannerGrid" class="planner-grid"></div>
-
-</div>
-
-
-<p class="muted info-line">
-
-Ogni giorno può avere un solo slot per colazione, pranzo, cena e snack.
-
-</p>
-
-</div>
-
-</section>
-
-</div>
-
-</div>
-
-</div>
-
 
 <script src="data.js"></script>
 <script src="script.js"></script>
