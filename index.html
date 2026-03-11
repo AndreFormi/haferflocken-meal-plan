@@ -154,13 +154,17 @@
 
         <section class="panel">
           <div class="tabs">
-            <button class="tab active" id="tabShoppingBtn" type="button">🛒 Lista della spesa</button>
+            <button class="tab active" id="tabShoppingBtn" type="button">🛍️ Lista della spesa</button>
             <button class="tab" id="tabPlanBtn" type="button">📅 Planner settimanale</button>
           </div>
 
+          <p class="muted">
+            <strong>Come usare questa sezione:</strong> prima salva i pasti qui a sinistra. Poi apri la <strong>Lista della spesa</strong> per vedere gli ingredienti da acquistare, oppure il <strong>Planner</strong> per controllare e modificare i pasti della settimana.
+          </p>
+
           <div id="shoppingView" class="tab-view">
-            <h2>🛒 Da comprare</h2>
-            <p class="muted">Ingredienti totali in base ai pasti inseriti.</p>
+            <h2>🛍️ Da comprare</h2>
+            <p class="muted">Qui vedi tutti gli ingredienti che ti servono in base ai pasti inseriti.</p>
 
             <p class="scroll-hint">← scorri lateralmente se necessario →</p>
 
@@ -178,12 +182,20 @@
               </table>
             </div>
 
+            <p class="muted">
+              Tocca il pulsante con il <strong>carrello +</strong> per spostare un ingrediente da <strong>Da comprare</strong> a <strong>Nel carrello</strong> quando lo hai già preso.
+            </p>
+
             <div class="row">
               <button type="button" class="btn-blue" id="copyShoppingBtn">📋 Copia lista</button>
             </div>
 
-            <h2 class="subsection-title">🛍️ Nel carrello</h2>
-            <p class="muted">Ingredienti che hai già preso al supermercato.</p>
+            <p class="muted">
+              Usa <strong>Copia lista</strong> per incollare facilmente la spesa nelle note del telefono, in un messaggio o in un’altra app mentre sei al supermercato.
+            </p>
+
+            <h2 class="subsection-title">🛒 Nel carrello</h2>
+            <p class="muted">Qui vedi gli ingredienti che hai già selezionato o acquistato.</p>
 
             <p class="scroll-hint">← scorri lateralmente se necessario →</p>
 
@@ -200,11 +212,17 @@
                 <tbody></tbody>
               </table>
             </div>
+
+            <p class="muted">
+              Se hai spostato qualcosa per errore, tocca il pulsante con il <strong>carrello −</strong> per rimetterlo nella sezione <strong>Da comprare</strong>.
+            </p>
           </div>
 
           <div id="planView" class="tab-view hidden">
             <h2>📅 Planner settimanale</h2>
-            <p class="muted">Vista a griglia della settimana. Tocca una cella per compilare, modificare o eliminare quel pasto.</p>
+            <p class="muted">
+              Qui vedi la settimana in modo visivo. Tocca una cella vuota per aggiungere un pasto, oppure usa i pulsanti nella cella per modificare o eliminare un pasto già salvato.
+            </p>
 
             <p class="scroll-hint">← scorri lateralmente per vedere tutta la settimana →</p>
 
