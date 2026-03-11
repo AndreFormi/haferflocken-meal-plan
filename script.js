@@ -23,8 +23,12 @@ const categoryFilterEl = document.getElementById("categoryFilter");
 const msgEl = document.getElementById("msg");
 const nextMealBoxEl = document.getElementById("nextMealBox");
 const plannerGridEl = document.getElementById("plannerGrid");
+
+const installBoxEl = document.getElementById("installBox");
 const installAppBtn = document.getElementById("installAppBtn");
-const installBoxEl = document.querySelector(".install-box");
+const installAndroidBlock = document.getElementById("installAndroidBlock");
+const installIosBlock = document.getElementById("installIosBlock");
+const installGenericBlock = document.getElementById("installGenericBlock");
 
 const shoppingView = document.getElementById("shoppingView");
 const planView = document.getElementById("planView");
@@ -52,25 +56,22 @@ function init() {
   renderAll();
   registerServiceWorker();
 
+  setupInstallExperience();
   updateInstallBannerVisibility();
 
   window.addEventListener("load", updateInstallBannerVisibility);
   window.addEventListener("pageshow", updateInstallBannerVisibility);
+  window.addEventListener("focus", updateInstallBannerVisibility);
 
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) {
-      updateInstallBannerVisibility();
-    }
+    if (!document.hidden) updateInstallBannerVisibility();
   });
-
-  window.addEventListener("focus", updateInstallBannerVisibility);
 
   const standaloneQuery = window.matchMedia("(display-mode: standalone)");
   if (standaloneQuery && standaloneQuery.addEventListener) {
     standaloneQuery.addEventListener("change", updateInstallBannerVisibility);
   }
 
-  // ricontrollo ritardato per mobile/browser lenti
   setTimeout(updateInstallBannerVisibility, 600);
   setTimeout(updateInstallBannerVisibility, 1500);
 }
@@ -83,6 +84,15 @@ function registerServiceWorker() {
       });
     });
   }
+}
+
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+function isAndroid() {
+  return /Android/i.test(navigator.userAgent);
 }
 
 function isRunningAsApp() {
@@ -107,16 +117,34 @@ function clearInstallHint() {
   localStorage.removeItem(STORAGE_KEY_APP_INSTALLED_HINT);
 }
 
+function setupInstallExperience() {
+  if (installAndroidBlock) installAndroidBlock.classList.add("hidden");
+  if (installIosBlock) installIosBlock.classList.add("hidden");
+  if (installGenericBlock) installGenericBlock.classList.add("hidden");
+
+  if (isRunningAsApp() || hasInstallHint()) {
+    if (installBoxEl) installBoxEl.classList.add("hidden");
+    return;
+  }
+
+  if (isIOS()) {
+    if (installIosBlock) installIosBlock.classList.remove("hidden");
+  } else if (isAndroid()) {
+    if (installAndroidBlock) installAndroidBlock.classList.remove("hidden");
+  } else {
+    if (installGenericBlock) installGenericBlock.classList.remove("hidden");
+  }
+}
+
 function updateInstallBannerVisibility() {
   if (!installBoxEl) return;
 
-  // regola robusta:
-  // 1) se siamo in standalone => nascondi
-  // 2) se l'utente ha già cliccato installa/appinstalled => nascondi
   if (isRunningAsApp() || hasInstallHint()) {
     installBoxEl.classList.add("hidden");
+    document.documentElement.classList.add("app-installed-mode");
   } else {
     installBoxEl.classList.remove("hidden");
+    document.documentElement.classList.remove("app-installed-mode");
   }
 }
 
@@ -124,7 +152,7 @@ window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
 
-  if (installAppBtn && !isRunningAsApp() && !hasInstallHint()) {
+  if (installAppBtn && isAndroid() && !isRunningAsApp() && !hasInstallHint()) {
     installAppBtn.classList.remove("hidden");
   }
 });
@@ -133,30 +161,19 @@ window.addEventListener("appinstalled", () => {
   deferredPrompt = null;
   setInstallHint();
 
-  if (installAppBtn) {
-    installAppBtn.classList.add("hidden");
-  }
-
-  if (installBoxEl) {
-    installBoxEl.classList.add("hidden");
-  }
+  if (installAppBtn) installAppBtn.classList.add("hidden");
+  if (installBoxEl) installBoxEl.classList.add("hidden");
 });
 
 async function installApp() {
   if (!deferredPrompt) {
-    // anche qui salviamo il hint, perché alcuni browser installano senza
-    // lanciare eventi in modo perfetto, ma l'utente ha già scelto di usarla come app
-    setInstallHint();
-    updateInstallBannerVisibility();
-
     setMsg(
-      "ℹ️ Installazione non disponibile qui. Apri l’app in un browser compatibile e usa l’opzione del browser per installarla.",
+      "ℹ️ Apri l’app in un browser compatibile e usa l’opzione del browser per installarla.",
       ""
     );
     return;
   }
 
-  // appena clicca installa, salviamo il hint
   setInstallHint();
 
   deferredPrompt.prompt();
@@ -165,24 +182,16 @@ async function installApp() {
   if (choice && choice.outcome === "accepted") {
     setMsg("✅ Installazione avviata.", "ok");
   } else {
-    // se annulla, togliamo il flag
     clearInstallHint();
     setMsg("ℹ️ Installazione annullata.", "");
   }
 
   deferredPrompt = null;
 
-  if (installAppBtn) {
-    installAppBtn.classList.add("hidden");
-  }
+  if (installAppBtn) installAppBtn.classList.add("hidden");
 
-  setTimeout(() => {
-    updateInstallBannerVisibility();
-  }, 500);
-
-  setTimeout(() => {
-    updateInstallBannerVisibility();
-  }, 1500);
+  setTimeout(updateInstallBannerVisibility, 500);
+  setTimeout(updateInstallBannerVisibility, 1500);
 }
 
 function renderAll() {
@@ -229,9 +238,7 @@ function renderRecipeOptions() {
   });
 
   const stillExists = filtered.some(r => r.title === currentValue);
-  if (stillExists) {
-    recipeEl.value = currentValue;
-  }
+  if (stillExists) recipeEl.value = currentValue;
 }
 
 function handleMealTimeDefault() {
@@ -378,9 +385,7 @@ function buildShoppingList(plan) {
 
       const obj = map.get(key);
       const qty = Number(ingredient.qty);
-      if (!Number.isNaN(qty)) {
-        obj.total += qty;
-      }
+      if (!Number.isNaN(qty)) obj.total += qty;
     });
   });
 
@@ -480,9 +485,7 @@ function renderPlannerGrid() {
         cell.addEventListener("click", () => {
           dayEl.value = day;
           mealEl.value = meal;
-          if (!timeEl.value && DEFAULT_TIMES[meal]) {
-            timeEl.value = DEFAULT_TIMES[meal];
-          }
+          if (!timeEl.value && DEFAULT_TIMES[meal]) timeEl.value = DEFAULT_TIMES[meal];
           window.scrollTo({ top: 0, behavior: "smooth" });
           setMsg(`ℹ️ Hai selezionato ${meal} di ${day}. Ora scegli la ricetta e salva.`, "");
         });
@@ -514,11 +517,7 @@ function prefillMeal(id) {
   if (!entry) return;
 
   const recipeObj = RECIPES_DATA.find(r => r.title === entry.recipe);
-  if (recipeObj) {
-    categoryFilterEl.value = recipeObj.category || "Tutte";
-  } else {
-    categoryFilterEl.value = "Tutte";
-  }
+  categoryFilterEl.value = recipeObj ? (recipeObj.category || "Tutte") : "Tutte";
 
   recipeSearchEl.value = "";
   renderRecipeOptions();
