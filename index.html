@@ -11,6 +11,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Piano Avena" />
 
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png" />
+
   <script>
     (function () {
       try {
@@ -41,21 +45,41 @@
   <div class="app">
     <div class="card">
 
-      <div class="install-box elegant-install">
+      <div class="install-box elegant-install" id="installBox">
         <img src="./icon-512.png" alt="HaferLocker Icon" class="install-badge-img">
 
         <div class="install-content">
           <h3>Installa l’app sul telefono</h3>
-          <p class="muted">
-            Apri questa pagina in un browser compatibile per aggiungerla alla schermata Home.
-          </p>
-          <ul class="install-list">
-            <li><strong>Android:</strong> usa il pulsante qui sotto oppure il menu del browser, quando disponibile.</li>
-            <li><strong>iPhone:</strong> apri in Safari, tocca <strong>Condividi</strong> e poi <strong>Aggiungi a Home</strong>.</li>
-            <li><strong>Se vedi un visualizzatore interno:</strong> scegli <strong>Apri nel browser</strong>.</li>
-          </ul>
 
-          <button type="button" class="btn-blue hidden" id="installAppBtn">⬇️ Installa app</button>
+          <div id="installIntro" class="muted">
+            Apri questa pagina nel browser del telefono e aggiungila alla schermata Home.
+          </div>
+
+          <div id="installAndroidBlock" class="install-platform-block hidden">
+            <ul class="install-list">
+              <li><strong>Android:</strong> puoi usare il pulsante qui sotto oppure il menu del browser, quando disponibile.</li>
+            </ul>
+            <button type="button" class="btn-blue hidden" id="installAppBtn">⬇️ Installa app</button>
+          </div>
+
+          <div id="installIosBlock" class="install-platform-block hidden">
+            <ul class="install-list">
+              <li><strong>iPhone / iPad:</strong> apri la pagina in <strong>Safari</strong>.</li>
+              <li>Tocca <strong>Condividi</strong>.</li>
+              <li>Scegli <strong>Aggiungi alla schermata Home</strong>.</li>
+            </ul>
+            <div class="ios-tip">
+              Dopo averla aggiunta alla Home, aprila da lì come una normale app.
+            </div>
+          </div>
+
+          <div id="installGenericBlock" class="install-platform-block hidden">
+            <ul class="install-list">
+              <li>Se vedi un visualizzatore interno, scegli <strong>Apri nel browser</strong>.</li>
+              <li>Su iPhone usa <strong>Safari → Condividi → Aggiungi alla schermata Home</strong>.</li>
+              <li>Su Android usa il pulsante installa o il menu del browser.</li>
+            </ul>
+          </div>
         </div>
       </div>
 
