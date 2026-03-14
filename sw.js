@@ -1,4 +1,4 @@
-const CACHE_NAME = "haferlocker-pwa-v7";
+const CACHE_NAME = "haferlocker-reset-v101";
 
 const ASSETS = [
   "./",
@@ -39,19 +39,15 @@ self.addEventListener("fetch", (event) => {
 
   if (url.origin !== self.location.origin) return;
 
-  const isHtml =
+  const isDynamic =
     req.mode === "navigate" ||
-    url.pathname.endsWith("/") ||
-    url.pathname.endsWith("/index.html") ||
-    url.pathname.endsWith("index.html");
-
-  const isCriticalAsset =
+    url.pathname.endsWith("index.html") ||
     url.pathname.endsWith("style.css") ||
     url.pathname.endsWith("script.js") ||
     url.pathname.endsWith("data.js") ||
     url.pathname.endsWith("manifest.json");
 
-  if (isHtml || isCriticalAsset) {
+  if (isDynamic) {
     event.respondWith(
       fetch(req)
         .then((res) => {
@@ -60,10 +56,7 @@ self.addEventListener("fetch", (event) => {
           return res;
         })
         .catch(() =>
-          caches.match(req).then((cached) => {
-            if (cached) return cached;
-            return caches.match("./index.html");
-          })
+          caches.match(req).then((cached) => cached || caches.match("./index.html"))
         )
     );
     return;
@@ -72,7 +65,6 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
-
       return fetch(req).then((res) => {
         const copy = res.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
