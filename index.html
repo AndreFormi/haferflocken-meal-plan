@@ -1,296 +1,329 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Piano pasti interattivo con avena</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#116dff" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Piano Avena" />
+<title>Piano pasti interattivo con avena</title>
 
-  <link rel="apple-touch-icon" href="./icon-192.png" />
-  <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png" />
-  <link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png" />
+<link rel="manifest" href="./manifest.json" />
 
-  <script>
-    (function () {
-      try {
-        var isStandalone =
-          window.matchMedia("(display-mode: standalone)").matches ||
-          window.matchMedia("(display-mode: fullscreen)").matches ||
-          window.matchMedia("(display-mode: minimal-ui)").matches ||
-          window.navigator.standalone === true ||
-          localStorage.getItem("piano_pasti_avena_app_installed_hint") === "1";
+<meta name="theme-color" content="#116dff" />
 
-        if (isStandalone) {
-          document.documentElement.classList.add("app-installed-mode");
-        }
-      } catch (e) {}
-    })();
-  </script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Piano Avena">
 
-  <link rel="stylesheet" href="./style.css" />
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png">
 
-  <style>
-    html.app-installed-mode .install-box {
-      display: none !important;
-    }
+<script>
+(function () {
 
-    .app-guide-box {
-      display: none;
-    }
+try {
 
-    html.app-installed-mode .app-guide-box {
-      display: block;
-    }
-  </style>
+var isStandalone =
+window.matchMedia("(display-mode: standalone)").matches ||
+window.navigator.standalone === true;
+
+if (isStandalone) {
+document.documentElement.classList.add("app-installed-mode");
+}
+
+} catch (e) {}
+
+})();
+</script>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+html.app-installed-mode .install-box {
+display:none !important;
+}
+
+.next-meal-box{
+display:none;
+}
+
+html.app-installed-mode .next-meal-box{
+display:block;
+}
+
+.center-guide{
+text-align:center;
+font-size:14px;
+margin:10px 0;
+color:#666;
+}
+
+</style>
+
 </head>
+
 <body>
-  <div class="app">
-    <div class="card">
 
-      <div class="install-box elegant-install" id="installBox">
-        <img src="./icon-512.png" alt="HaferLocker Icon" class="install-badge-img">
+<div class="app">
 
-        <div class="install-content">
-          <h3>Installa l’app sul telefono</h3>
+<div class="card">
 
-          <div id="installIntro" class="muted">
-            <strong>Per installare l’app:</strong>
-            <br><br>
+<!-- INSTALL BOX -->
 
-            <span class="device-inline device-android">
-              <span class="device-badge android-badge">🤖</span>
-              <strong>Android</strong>
-            </span>
-            <br>
-            Menu ⋮ → <strong>Aggiungi alla schermata Home</strong>
+<div class="install-box elegant-install" id="installBox">
 
-            <br><br>
+<img src="./icon-512.png" alt="HaferLocker Icon" class="install-badge-img">
 
-            <span class="device-inline device-iphone">
-              <span class="device-badge iphone-badge">🍎</span>
-              <strong>iPhone</strong>
-            </span>
-            <br>
-            <strong>Condividi</strong> → <strong>Aggiungi alla schermata Home</strong>
-          </div>
+<div class="install-content">
 
-          <div id="installAndroidBlock" class="install-platform-block hidden">
-            <button type="button" class="btn-blue hidden" id="installAppBtn">⬇️ Installa app</button>
-          </div>
+<h3>Installa l’app sul telefono</h3>
 
-          <div id="installIosBlock" class="install-platform-block hidden">
-            <div class="ios-tip">
-              Dopo averla aggiunta alla schermata Home, aprila da lì come una normale app.
-            </div>
-          </div>
+<div class="muted">
+Apri questa pagina nel browser del telefono e aggiungila alla schermata Home.
+</div>
 
-          <div id="installGenericBlock" class="install-platform-block hidden">
-            <p class="install-help-title">
-              Non vedi il pulsante per installare l’app?
-            </p>
+<div id="installAndroidBlock" class="install-platform-block hidden">
 
-            <p class="muted">
-              Apri questa pagina con <strong>Safari</strong> (iPhone) o <strong>Chrome</strong> (Android)
-            </p>
+<ul class="install-list">
+<li><strong>Android:</strong> puoi usare il pulsante qui sotto oppure il menu del browser.</li>
+</ul>
 
-            <div class="install-steps">
-              <div class="install-step">
-                <div class="device-badge android-badge">🤖</div>
-                <div>
-                  <strong>Android</strong><br>
-                  Menu ⋮ → <strong>Aggiungi alla schermata Home</strong>
-                </div>
-              </div>
+<button type="button" class="btn-blue hidden" id="installAppBtn">
+⬇️ Installa app
+</button>
 
-              <div class="install-step">
-                <div class="device-badge iphone-badge">🍎</div>
-                <div>
-                  <strong>iPhone</strong><br>
-                  <strong>Condividi</strong> → <strong>Aggiungi alla schermata Home</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+</div>
 
-      <h1>🥣 Piano pasti interattivo con avena</h1>
+<div id="installIosBlock" class="install-platform-block hidden">
 
-      <p class="muted">
-        Organizza la settimana, filtra le ricette, genera la lista della spesa e tieni traccia di ciò che hai già preso.
-      </p>
+<ul class="install-list">
+<li><strong>iPhone / iPad:</strong> apri la pagina in <strong>Safari</strong>.</li>
+<li>Tocca <strong>Condividi</strong>.</li>
+<li>Scegli <strong>Aggiungi alla schermata Home</strong>.</li>
+</ul>
 
-      <div class="app-guide-box next-meal-box">
-        <strong>Come usare l'app</strong>
-        <br><br>
-        1️⃣ Inserisci i pasti della settimana<br>
-        2️⃣ Genera automaticamente la lista della spesa<br>
-        3️⃣ Sposta gli ingredienti nel carrello mentre fai la spesa
-      </div>
+<div class="ios-tip">
+Dopo averla aggiunta alla Home, aprila da lì come una normale app.
+</div>
 
-      <div id="nextMealBox" class="next-meal-box hidden"></div>
+</div>
 
-      <div class="grid">
-        <section class="panel">
-          <h2>➕ Aggiungi o sostituisci un pasto</h2>
+</div>
 
-          <label for="day">Giorno</label>
-          <select id="day">
-            <option value="">Seleziona…</option>
-            <option>Lunedì</option>
-            <option>Martedì</option>
-            <option>Mercoledì</option>
-            <option>Giovedì</option>
-            <option>Venerdì</option>
-            <option>Sabato</option>
-            <option>Domenica</option>
-          </select>
+</div>
 
-          <label for="meal">Pasto</label>
-          <select id="meal">
-            <option value="">Seleziona…</option>
-            <option>Colazione</option>
-            <option>Pranzo</option>
-            <option>Cena</option>
-            <option>Snack</option>
-          </select>
+<!-- TITOLO -->
 
-          <label for="time">Orario</label>
-          <input id="time" type="time" />
+<h1>🥣 Piano pasti interattivo con avena</h1>
 
-          <label for="categoryFilter">Categoria (facoltativa)</label>
-          <select id="categoryFilter">
-            <option value="Tutte">Tutte</option>
-          </select>
+<p class="muted">
+Organizza la settimana, filtra le ricette, genera la lista della spesa e tieni traccia di ciò che hai già preso.
+</p>
 
-          <div class="filter-or">oppure</div>
+<!-- BANNER APP (solo quando installata) -->
 
-          <label for="recipeSearch">Cerca ricetta (facoltativo)</label>
-          <input id="recipeSearch" type="text" placeholder="Scrivi nome o ingrediente, es. banana" />
+<div class="next-meal-box">
 
-          <p class="muted filter-note">
-            Puoi usare la categoria, la ricerca, oppure entrambi. Poi seleziona la ricetta qui sotto.
-          </p>
+<strong>Come usare l'app</strong>
 
-          <label for="recipe">Ricetta</label>
-          <select id="recipe">
-            <option value="">Seleziona ricetta…</option>
-          </select>
+<br><br>
 
-          <button id="addMealBtn">Salva pasto</button>
+1️⃣ Inserisci i pasti della settimana  
+<br>
+2️⃣ Genera automaticamente la lista della spesa  
+<br>
+3️⃣ Sposta gli ingredienti nel carrello mentre fai la spesa
 
-          <p class="helper-note">
-            Dopo aver scelto giorno, pasto, orario e ricetta, clicca su <strong>Salva pasto</strong>.
-          </p>
+</div>
 
-          <div class="row">
-            <button type="button" class="btn-gray" id="clearAllBtn">🧹 Svuota tutto</button>
-          </div>
+<div class="grid">
 
-          <p class="warning-note">
-            Usa questo pulsante solo se vuoi cancellare tutto e ricominciare da zero.
-          </p>
+<!-- COLONNA SINISTRA -->
 
-          <div id="msg"></div>
-        </section>
+<section class="panel">
 
-        <section class="panel">
-          <div class="tabs-stack">
-            <p class="muted tabs-guide-top">Salva i pasti, poi scegli qui</p>
+<h2>➕ Aggiungi o sostituisci un pasto</h2>
 
-            <button class="tab active" id="tabShoppingBtn" type="button">
-              🛍️ Lista della spesa
-            </button>
+<label for="day">Giorno</label>
 
-            <button class="tab" id="tabPlanBtn" type="button">
-              📅 Planner settimanale
-            </button>
-          </div>
+<select id="day">
 
-          <div id="shoppingView" class="tab-view">
-            <h2>🛍️ Da comprare</h2>
+<option value="">Seleziona…</option>
+<option>Lunedì</option>
+<option>Martedì</option>
+<option>Mercoledì</option>
+<option>Giovedì</option>
+<option>Venerdì</option>
+<option>Sabato</option>
+<option>Domenica</option>
 
-            <p class="muted">
-              Ingredienti necessari per i pasti della settimana. Usa il pulsante 🛒+ per spostare qui sotto nel carrello.
-            </p>
+</select>
 
-            <p class="scroll-hint">← scorri lateralmente se necessario →</p>
+<label for="meal">Pasto</label>
 
-            <div class="box">
-              <table id="shoppingTable">
-                <thead>
-                  <tr>
-                    <th>Ingrediente</th>
-                    <th class="num">Q.tà</th>
-                    <th>Unità</th>
-                    <th>Carrello</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
+<select id="meal">
 
-            <h2 class="subsection-title">🛒 Nel carrello</h2>
+<option value="">Seleziona…</option>
+<option>Colazione</option>
+<option>Pranzo</option>
+<option>Cena</option>
+<option>Snack</option>
 
-            <p class="muted">
-              Qui trovi gli ingredienti che hai già messo nel carrello. Se serve puoi rimetterli nella lista con lo stesso pulsante.
-            </p>
+</select>
 
-            <p class="scroll-hint">← scorri lateralmente se necessario →</p>
+<label for="time">Orario</label>
 
-            <div class="box">
-              <table id="cartTable">
-                <thead>
-                  <tr>
-                    <th>Ingrediente</th>
-                    <th class="num">Q.tà</th>
-                    <th>Unità</th>
-                    <th>Carrello</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
+<input id="time" type="time">
 
-            <div class="row copy-row">
-              <button type="button" class="btn-blue" id="copyShoppingBtn">
-                📋 Copia lista della spesa
-              </button>
-            </div>
+<label for="categoryFilter">Categoria</label>
 
-            <div id="copyFallback" class="hidden copy-box">
-              <p><strong>Copia manuale:</strong> seleziona il testo qui sotto.</p>
-              <textarea id="copyArea" readonly></textarea>
-              <button type="button" id="selectCopyBtn">Seleziona tutto</button>
-            </div>
-          </div>
+<select id="categoryFilter">
+<option value="Tutte">Tutte</option>
+</select>
 
-          <div id="planView" class="tab-view hidden">
-            <h2>📅 Planner settimanale</h2>
+<div class="filter-or">oppure</div>
 
-            <p class="scroll-hint">
-              ← scorri lateralmente per vedere tutta la settimana →
-            </p>
+<label for="recipeSearch">Cerca ricetta</label>
 
-            <div class="planner-grid-wrap">
-              <div id="plannerGrid" class="planner-grid"></div>
-            </div>
+<input id="recipeSearch" type="text" placeholder="es. banana">
 
-            <p class="muted info-line">
-              In ogni giorno puoi avere un solo slot per Colazione, Pranzo, Cena e Snack.
-            </p>
-          </div>
-        </section>
-      </div>
-    </div>
-  </div>
+<label for="recipe">Ricetta</label>
 
-  <script src="./data.js"></script>
-  <script src="./script.js"></script>
+<select id="recipe">
+<option value="">Seleziona ricetta…</option>
+</select>
+
+<button id="addMealBtn">Salva pasto</button>
+
+<p class="helper-note">
+Dopo aver scelto giorno, pasto e ricetta clicca su <strong>Salva pasto</strong>.
+</p>
+
+<button type="button" class="btn-gray" id="clearAllBtn">
+🧹 Svuota tutto
+</button>
+
+<div id="msg"></div>
+
+</section>
+
+<!-- COLONNA DESTRA -->
+
+<section class="panel">
+
+<button class="tab active" id="tabShoppingBtn" type="button">
+🛍️ Lista della spesa
+</button>
+
+<div class="center-guide">
+Salva i pasti, poi scegli qui
+</div>
+
+<button class="tab" id="tabPlanBtn" type="button">
+📅 Planner settimanale
+</button>
+
+<!-- LISTA SPESA -->
+
+<div id="shoppingView" class="tab-view">
+
+<h2>🛍️ Da comprare</h2>
+
+<p class="muted">
+Ingredienti necessari per i pasti della settimana. Usa il pulsante del carrello per spostare qui sotto ciò che hai già preso.
+</p>
+
+<p class="scroll-hint">
+← scorri lateralmente se necessario →
+</p>
+
+<div class="box">
+
+<table id="shoppingTable">
+
+<thead>
+<tr>
+<th>Ingrediente</th>
+<th>Q.tà</th>
+<th>Unità</th>
+<th>Carrello</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+<h2 class="subsection-title">🛒 Nel carrello</h2>
+
+<p class="muted">
+Qui trovi gli ingredienti che hai già messo nel carrello. Se serve, puoi rimetterli nella lista con lo stesso pulsante.
+</p>
+
+<p class="scroll-hint">
+← scorri lateralmente se necessario →
+</p>
+
+<div class="box">
+
+<table id="cartTable">
+
+<thead>
+<tr>
+<th>Ingrediente</th>
+<th>Q.tà</th>
+<th>Unità</th>
+<th>Carrello</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+<div class="row">
+
+<button type="button" class="btn-blue" id="copyShoppingBtn">
+📋 Copia lista della spesa
+</button>
+
+</div>
+
+</div>
+
+<!-- PLANNER -->
+
+<div id="planView" class="tab-view hidden">
+
+<h2>📅 Planner settimanale</h2>
+
+<p class="scroll-hint">
+← scorri lateralmente →
+</p>
+
+<div class="planner-grid-wrap">
+
+<div id="plannerGrid" class="planner-grid"></div>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+
 </body>
 </html>
