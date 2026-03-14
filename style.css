@@ -230,3 +230,89 @@ font-size:14px;
 margin:10px 0;
 color:#666;
 }
+/* ===== MOBILE FIX HARD OVERRIDE ===== */
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.app,
+.card,
+.grid,
+.panel,
+.tab-view,
+.box,
+.planner-grid-wrap {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 901px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.card {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.install-box {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.install-content {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.box {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  min-width: 420px;
+}
+
+select,
+input,
+button,
+textarea {
+  max-width: 100%;
+}
+
+.tab {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  body {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .install-box {
+    flex-direction: column;
+  }
+
+  .install-badge-img {
+    width: 64px;
+    height: auto;
+  }
+}
