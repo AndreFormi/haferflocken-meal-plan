@@ -2,6 +2,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: Arial, sans-serif;
   margin: 16px;
@@ -12,6 +17,7 @@ body {
 .app {
   max-width: 1100px;
   margin: 0 auto;
+  min-width: 0;
 }
 
 .card {
@@ -19,6 +25,8 @@ body {
   border: 1px solid #dce6f0;
   border-radius: 16px;
   padding: 16px;
+  width: 100%;
+  min-width: 0;
 }
 
 h1 {
@@ -48,6 +56,7 @@ input,
 button,
 textarea {
   width: 100%;
+  max-width: 100%;
   padding: 12px;
   border-radius: 12px;
   border: 1px solid #cdd8e5;
@@ -82,6 +91,8 @@ button {
   grid-template-columns: 1fr;
   gap: 16px;
   margin-top: 16px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 @media (min-width: 980px) {
@@ -95,6 +106,8 @@ button {
   border-radius: 16px;
   padding: 14px;
   background: #fff;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .tabs {
@@ -132,9 +145,12 @@ button {
 
 .box {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid #dce6f0;
   border-radius: 12px;
   margin-top: 10px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 table {
@@ -187,6 +203,7 @@ td.num {
   border-radius: 16px;
   border: 1px solid #dce6f0;
   background: #f8fbff;
+  max-width: 100%;
 }
 
 .elegant-install {
@@ -253,9 +270,12 @@ td.num {
 
 .planner-grid-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid #dce6f0;
   border-radius: 12px;
   margin-top: 10px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .planner-grid {
@@ -320,4 +340,24 @@ td.num {
   background: #fff;
   color: #1f2a37;
   border: 1px solid #cdd8e5;
+}
+
+@media (max-width: 900px) {
+  body {
+    margin: 0;
+    padding: 12px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .elegant-install {
+    grid-template-columns: 1fr;
+  }
+
+  .install-badge-img {
+    width: 64px;
+    height: 64px;
+  }
 }
