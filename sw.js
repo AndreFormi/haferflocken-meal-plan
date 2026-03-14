@@ -1,4 +1,4 @@
-const CACHE_NAME = "haferlocker-reset-v101";
+const CACHE_NAME = "piano-avena-v301";
 
 const ASSETS = [
   "./",
@@ -39,15 +39,19 @@ self.addEventListener("fetch", (event) => {
 
   if (url.origin !== self.location.origin) return;
 
-  const isDynamic =
+  const isHtml =
     req.mode === "navigate" ||
-    url.pathname.endsWith("index.html") ||
+    url.pathname.endsWith("/") ||
+    url.pathname.endsWith("/index.html") ||
+    url.pathname.endsWith("index.html");
+
+  const isAlwaysFresh =
     url.pathname.endsWith("style.css") ||
     url.pathname.endsWith("script.js") ||
     url.pathname.endsWith("data.js") ||
     url.pathname.endsWith("manifest.json");
 
-  if (isDynamic) {
+  if (isHtml || isAlwaysFresh) {
     event.respondWith(
       fetch(req)
         .then((res) => {
@@ -65,6 +69,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
+
       return fetch(req).then((res) => {
         const copy = res.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
