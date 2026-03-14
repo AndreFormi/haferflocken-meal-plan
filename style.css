@@ -5,6 +5,12 @@ body{
   padding:20px;
 }
 
+img{
+  max-width:100%;
+  height:auto;
+  display:block;
+}
+
 .app{
   max-width:900px;
   margin:auto;
@@ -46,6 +52,9 @@ h2{
 
 .install-badge-img{
   width:70px;
+  max-width:70px;
+  height:auto;
+  flex:0 0 70px;
   border-radius:14px;
 }
 
