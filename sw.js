@@ -1,4 +1,4 @@
-const CACHE_NAME = "haferflocken-app-v11";
+const CACHE_NAME = "haferlocker-pwa-v7";
 
 const ASSETS = [
   "./",
@@ -26,7 +26,6 @@ self.addEventListener("activate", (event) => {
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
-          return null;
         })
       )
     )
@@ -35,19 +34,49 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  const request = event.request;
+  const req = event.request;
+  const url = new URL(req.url);
 
-  if (request.method !== "GET") return;
+  if (url.origin !== self.location.origin) return;
+
+  const isHtml =
+    req.mode === "navigate" ||
+    url.pathname.endsWith("/") ||
+    url.pathname.endsWith("/index.html") ||
+    url.pathname.endsWith("index.html");
+
+  const isCriticalAsset =
+    url.pathname.endsWith("style.css") ||
+    url.pathname.endsWith("script.js") ||
+    url.pathname.endsWith("data.js") ||
+    url.pathname.endsWith("manifest.json");
+
+  if (isHtml || isCriticalAsset) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+          return res;
+        })
+        .catch(() =>
+          caches.match(req).then((cached) => {
+            if (cached) return cached;
+            return caches.match("./index.html");
+          })
+        )
+    );
+    return;
+  }
 
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
+    caches.match(req).then((cached) => {
+      if (cached) return cached;
 
-      return fetch(request).then((networkResponse) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, networkResponse.clone());
-          return networkResponse;
-        });
+      return fetch(req).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+        return res;
       });
     })
   );
