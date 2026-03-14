@@ -1,6 +1,5 @@
 const STORAGE_KEY_PLAN = "piano_pasti_avena_v3";
 const STORAGE_KEY_CART = "piano_pasti_avena_carrello_v3";
-const STORAGE_KEY_APP_INSTALLED_HINT = "piano_pasti_avena_app_installed_hint";
 
 const DAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
 const MEALS = ["Colazione", "Pranzo", "Cena", "Snack"];
@@ -21,18 +20,12 @@ const recipeEl = document.getElementById("recipe");
 const recipeSearchEl = document.getElementById("recipeSearch");
 const categoryFilterEl = document.getElementById("categoryFilter");
 const msgEl = document.getElementById("msg");
-const nextMealBoxEl = document.getElementById("nextMealBox");
 const plannerGridEl = document.getElementById("plannerGrid");
-
-const copyFallbackEl = document.getElementById("copyFallback");
-const copyAreaEl = document.getElementById("copyArea");
-const selectCopyBtnEl = document.getElementById("selectCopyBtn");
 
 const installBoxEl = document.getElementById("installBox");
 const installAppBtn = document.getElementById("installAppBtn");
 const installAndroidBlock = document.getElementById("installAndroidBlock");
 const installIosBlock = document.getElementById("installIosBlock");
-const installGenericBlock = document.getElementById("installGenericBlock");
 
 const shoppingView = document.getElementById("shoppingView");
 const planView = document.getElementById("planView");
@@ -42,8 +35,10 @@ const tabPlanBtn = document.getElementById("tabPlanBtn");
 document.getElementById("addMealBtn").addEventListener("click", addMeal);
 document.getElementById("clearAllBtn").addEventListener("click", clearAll);
 document.getElementById("copyShoppingBtn").addEventListener("click", copyShopping);
+
 tabShoppingBtn.addEventListener("click", () => showTab("shopping"));
 tabPlanBtn.addEventListener("click", () => showTab("plan"));
+
 mealEl.addEventListener("change", handleMealTimeDefault);
 categoryFilterEl.addEventListener("change", renderRecipeOptions);
 recipeSearchEl.addEventListener("input", renderRecipeOptions);
@@ -52,35 +47,13 @@ if (installAppBtn) {
   installAppBtn.addEventListener("click", installApp);
 }
 
-if (selectCopyBtnEl) {
-  selectCopyBtnEl.addEventListener("click", selectCopyText);
-}
-
 init();
 
 function init() {
+  setupInstallExperience();
   loadCategories();
   renderRecipeOptions();
   renderAll();
-
-  setupInstallExperience();
-  updateInstallBannerVisibility();
-
-  window.addEventListener("load", updateInstallBannerVisibility);
-  window.addEventListener("pageshow", updateInstallBannerVisibility);
-  window.addEventListener("focus", updateInstallBannerVisibility);
-
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) updateInstallBannerVisibility();
-  });
-
-  const standaloneQuery = window.matchMedia("(display-mode: standalone)");
-  if (standaloneQuery && standaloneQuery.addEventListener) {
-    standaloneQuery.addEventListener("change", updateInstallBannerVisibility);
-  }
-
-  setTimeout(updateInstallBannerVisibility, 600);
-  setTimeout(updateInstallBannerVisibility, 1500);
 }
 
 function isIOS() {
@@ -95,106 +68,53 @@ function isAndroid() {
 function isRunningAsApp() {
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
-    window.matchMedia("(display-mode: fullscreen)").matches ||
-    window.matchMedia("(display-mode: minimal-ui)").matches ||
-    window.navigator.standalone === true ||
-    document.referrer.startsWith("android-app://")
+    window.navigator.standalone === true
   );
-}
-
-function hasInstallHint() {
-  return localStorage.getItem(STORAGE_KEY_APP_INSTALLED_HINT) === "1";
-}
-
-function setInstallHint() {
-  localStorage.setItem(STORAGE_KEY_APP_INSTALLED_HINT, "1");
-}
-
-function clearInstallHint() {
-  localStorage.removeItem(STORAGE_KEY_APP_INSTALLED_HINT);
 }
 
 function setupInstallExperience() {
   if (installAndroidBlock) installAndroidBlock.classList.add("hidden");
   if (installIosBlock) installIosBlock.classList.add("hidden");
-  if (installGenericBlock) installGenericBlock.classList.add("hidden");
 
   if (isRunningAsApp()) {
     if (installBoxEl) installBoxEl.classList.add("hidden");
     return;
   }
 
-  // IMPORTANTE:
-  // se siamo nel browser normale, togliamo il vecchio "ricordo installato"
-  clearInstallHint();
-
   if (isIOS()) {
     if (installIosBlock) installIosBlock.classList.remove("hidden");
   } else if (isAndroid()) {
     if (installAndroidBlock) installAndroidBlock.classList.remove("hidden");
-  } else {
-    if (installGenericBlock) installGenericBlock.classList.remove("hidden");
   }
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installAppBtn && isAndroid()) {
+      installAppBtn.classList.remove("hidden");
+    }
+  });
+
+  window.addEventListener("appinstalled", () => {
+    if (installBoxEl) installBoxEl.classList.add("hidden");
+  });
 }
-
-function updateInstallBannerVisibility() {
-  if (!installBoxEl) return;
-
-  if (isRunningAsApp()) {
-    installBoxEl.classList.add("hidden");
-    document.documentElement.classList.add("app-installed-mode");
-    setInstallHint();
-  } else {
-    document.documentElement.classList.remove("app-installed-mode");
-    clearInstallHint();
-    installBoxEl.classList.remove("hidden");
-  }
-}
-
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  if (installAppBtn && isAndroid() && !isRunningAsApp()) {
-    installAppBtn.classList.remove("hidden");
-  }
-});
-
-window.addEventListener("appinstalled", () => {
-  deferredPrompt = null;
-  setInstallHint();
-
-  if (installAppBtn) installAppBtn.classList.add("hidden");
-  if (installBoxEl) installBoxEl.classList.add("hidden");
-});
 
 async function installApp() {
-  if (!deferredPrompt) {
-    setMsg("ℹ️ Apri l’app in un browser compatibile e usa l’opzione del browser per installarla.", "");
-    return;
-  }
+  if (!deferredPrompt) return;
 
   deferredPrompt.prompt();
-  const choice = await deferredPrompt.userChoice;
-
-  if (choice && choice.outcome === "accepted") {
-    setMsg("✅ Installazione avviata.", "ok");
-  } else {
-    setMsg("ℹ️ Installazione annullata.", "");
-  }
-
+  await deferredPrompt.userChoice;
   deferredPrompt = null;
 
-  if (installAppBtn) installAppBtn.classList.add("hidden");
-
-  setTimeout(updateInstallBannerVisibility, 500);
-  setTimeout(updateInstallBannerVisibility, 1500);
+  if (installAppBtn) {
+    installAppBtn.classList.add("hidden");
+  }
 }
 
 function renderAll() {
   renderShopping();
   renderPlannerGrid();
-  renderNextMeal();
 }
 
 function loadCategories() {
@@ -234,8 +154,9 @@ function renderRecipeOptions() {
     recipeEl.appendChild(option);
   });
 
-  const stillExists = filtered.some(r => r.title === currentValue);
-  if (stillExists) recipeEl.value = currentValue;
+  if (filtered.some(r => r.title === currentValue)) {
+    recipeEl.value = currentValue;
+  }
 }
 
 function handleMealTimeDefault() {
@@ -277,8 +198,7 @@ function getStoredPlan() {
   const raw = localStorage.getItem(STORAGE_KEY_PLAN);
   if (!raw) return [];
   try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return JSON.parse(raw) || [];
   } catch {
     return [];
   }
@@ -292,8 +212,7 @@ function getStoredCartKeys() {
   const raw = localStorage.getItem(STORAGE_KEY_CART);
   if (!raw) return [];
   try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return JSON.parse(raw) || [];
   } catch {
     return [];
   }
@@ -318,42 +237,28 @@ function addMeal() {
   const existingIndex = plan.findIndex(item => item.day === day && item.meal === meal);
 
   if (existingIndex !== -1) {
-    const confirmed = window.confirm(`Per ${day} esiste già un ${meal}. Vuoi sostituirlo con la nuova ricetta?`);
-    if (!confirmed) {
-      setMsg("ℹ️ Nessuna modifica effettuata.", "");
-      return;
-    }
+    const confirmed = window.confirm(`Per ${day} esiste già un ${meal}. Vuoi sostituirlo?`);
+    if (!confirmed) return;
 
     plan[existingIndex] = {
       ...plan[existingIndex],
       time,
-      recipe,
-      updatedAt: new Date().toISOString()
+      recipe
     };
-
-    saveStoredPlan(plan);
-    cleanCartFromUnavailableIngredients();
-    renderAll();
-    showTab("plan");
-    setMsg("✅ Pasto sostituito.", "ok");
-    return;
+  } else {
+    plan.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+      day,
+      meal,
+      time,
+      recipe
+    });
   }
 
-  const entry = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
-    day,
-    meal,
-    time,
-    recipe,
-    createdAt: new Date().toISOString()
-  };
-
-  plan.push(entry);
   saveStoredPlan(plan);
   cleanCartFromUnavailableIngredients();
   renderAll();
-  showTab("plan");
-  setMsg("✅ Pasto aggiunto.", "ok");
+  setMsg("✅ Pasto salvato.", "ok");
 }
 
 function buildIngredientKey(name, unit) {
@@ -369,6 +274,7 @@ function buildShoppingList(plan) {
 
     recipe.ingredients.forEach(ingredient => {
       const key = buildIngredientKey(ingredient.name, ingredient.unit);
+
       if (!map.has(key)) {
         map.set(key, {
           key,
@@ -384,7 +290,9 @@ function buildShoppingList(plan) {
     });
   });
 
-  return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "it"));
+  return Array.from(map.values()).sort((a, b) =>
+    a.name.localeCompare(b.name, "it")
+  );
 }
 
 function renderShopping() {
@@ -400,15 +308,15 @@ function renderShopping() {
   const shoppingItems = fullShoppingList.filter(item => !cartKeys.includes(item.key));
 
   if (shoppingItems.length === 0) {
-    shoppingTbody.innerHTML = `<tr><td colspan="4" class="muted">Nessun ingrediente da comprare in questo momento.</td></tr>`;
+    shoppingTbody.innerHTML = `<tr><td colspan="4" class="muted">Nessun ingrediente da comprare.</td></tr>`;
   } else {
     shoppingItems.forEach(item => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${escapeHtml(item.name)}</td>
         <td class="num">${escapeHtml(formatQty(item.total))}</td>
-        <td class="unit-cell">${escapeHtml(item.unit)}</td>
-        <td><button class="small-btn" type="button" title="Metti nel carrello" onclick="moveToCart('${escapeHtml(item.key)}')">🛒+</button></td>
+        <td>${escapeHtml(item.unit)}</td>
+        <td><button class="small-btn" type="button" onclick="moveToCart('${escapeHtml(item.key)}')">🛒+</button></td>
       `;
       shoppingTbody.appendChild(tr);
     });
@@ -422,8 +330,8 @@ function renderShopping() {
       tr.innerHTML = `
         <td>${escapeHtml(item.name)}</td>
         <td class="num">${escapeHtml(formatQty(item.total))}</td>
-        <td class="unit-cell">${escapeHtml(item.unit)}</td>
-        <td><button class="small-btn" type="button" title="Rimuovi dal carrello" onclick="removeFromCart('${escapeHtml(item.key)}')">🛒−</button></td>
+        <td>${escapeHtml(item.unit)}</td>
+        <td><button class="small-btn" type="button" onclick="removeFromCart('${escapeHtml(item.key)}')">🛒−</button></td>
       `;
       cartTbody.appendChild(tr);
     });
@@ -437,16 +345,12 @@ function moveToCart(key) {
     saveStoredCartKeys(cartKeys);
   }
   renderShopping();
-  hideCopyFallback();
-  setMsg("✅ Ingrediente spostato nel carrello.", "ok");
 }
 
 function removeFromCart(key) {
   const updated = getStoredCartKeys().filter(item => item !== key);
   saveStoredCartKeys(updated);
   renderShopping();
-  hideCopyFallback();
-  setMsg("✅ Ingrediente rimosso dal carrello.", "ok");
 }
 
 function cleanCartFromUnavailableIngredients() {
@@ -482,15 +386,14 @@ function renderPlannerGrid() {
           mealEl.value = meal;
           if (!timeEl.value && DEFAULT_TIMES[meal]) timeEl.value = DEFAULT_TIMES[meal];
           window.scrollTo({ top: 0, behavior: "smooth" });
-          setMsg(`ℹ️ Hai selezionato ${meal} di ${day}. Ora scegli la ricetta e salva.`, "");
         });
       } else {
         cell.innerHTML = `
           <div class="grid-time">${escapeHtml(entry.time)}</div>
           <div class="grid-recipe">${escapeHtml(entry.recipe)}</div>
           <div class="grid-actions">
-            <button class="grid-mini-btn" type="button" title="Modifica" onclick="prefillMeal('${escapeHtml(entry.id)}')">✏️</button>
-            <button class="grid-mini-btn" type="button" title="Elimina" onclick="deleteMeal('${escapeHtml(entry.id)}')">🗑️</button>
+            <button class="grid-mini-btn" type="button" onclick="prefillMeal('${escapeHtml(entry.id)}')">✏️</button>
+            <button class="grid-mini-btn" type="button" onclick="deleteMeal('${escapeHtml(entry.id)}')">🗑️</button>
           </div>
         `;
       }
@@ -512,8 +415,7 @@ function prefillMeal(id) {
   if (!entry) return;
 
   const recipeObj = RECIPES_DATA.find(r => r.title === entry.recipe);
-  categoryFilterEl.value = recipeObj ? (recipeObj.category || "Tutte") : "Tutte";
-
+  categoryFilterEl.value = recipeObj ? recipeObj.category : "Tutte";
   recipeSearchEl.value = "";
   renderRecipeOptions();
 
@@ -523,7 +425,6 @@ function prefillMeal(id) {
   recipeEl.value = entry.recipe;
 
   window.scrollTo({ top: 0, behavior: "smooth" });
-  setMsg("ℹ️ Modifica i campi e premi “Salva pasto” per sostituire questo slot.", "");
 }
 
 function deleteMeal(id) {
@@ -534,19 +435,6 @@ function deleteMeal(id) {
   saveStoredPlan(plan);
   cleanCartFromUnavailableIngredients();
   renderAll();
-  hideCopyFallback();
-  setMsg("✅ Pasto eliminato.", "ok");
-}
-
-function clearAll() {
-  const confirmed = window.confirm("Vuoi svuotare tutto il piano, la lista e il carrello?");
-  if (!confirmed) return;
-
-  localStorage.removeItem(STORAGE_KEY_PLAN);
-  localStorage.removeItem(STORAGE_KEY_CART);
-  renderAll();
-  hideCopyFallback();
-  setMsg("✅ Tutto cancellato.", "ok");
 }
 
 async function copyShopping() {
@@ -566,87 +454,19 @@ async function copyShopping() {
   try {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
-      hideCopyFallback();
       setMsg("✅ Lista copiata negli appunti.", "ok");
       return;
     }
   } catch (err) {}
 
-  showCopyFallback(text);
+  window.prompt("Copia manualmente la lista qui sotto:", text);
 }
 
-function showCopyFallback(text) {
-  if (!copyFallbackEl || !copyAreaEl) return;
-  copyAreaEl.value = text;
-  copyFallbackEl.classList.remove("hidden");
-  setMsg("ℹ️ Copia automatica non disponibile. Usa la copia manuale qui sotto.", "");
-}
+function clearAll() {
+  const confirmed = window.confirm("Vuoi svuotare tutto il piano e il carrello?");
+  if (!confirmed) return;
 
-function hideCopyFallback() {
-  if (!copyFallbackEl || !copyAreaEl) return;
-  copyFallbackEl.classList.add("hidden");
-  copyAreaEl.value = "";
-}
-
-function selectCopyText() {
-  if (!copyAreaEl) return;
-  copyAreaEl.focus();
-  copyAreaEl.select();
-  copyAreaEl.setSelectionRange(0, copyAreaEl.value.length);
-}
-
-function renderNextMeal() {
-  const next = getNextMealEntry();
-  if (!next) {
-    nextMealBoxEl.classList.add("hidden");
-    nextMealBoxEl.textContent = "";
-    return;
-  }
-
-  nextMealBoxEl.classList.remove("hidden");
-  nextMealBoxEl.textContent = `⏰ Prossimo pasto: ${next.day} alle ${next.time} — ${next.meal}: ${next.recipe}`;
-}
-
-function getNextMealEntry() {
-  const plan = getStoredPlan();
-  if (!plan.length) return null;
-
-  const entriesWithDate = plan.map(entry => ({
-    ...entry,
-    nextDate: getNextDateForItalianWeekday(entry.day, entry.time)
-  }));
-
-  entriesWithDate.sort((a, b) => a.nextDate - b.nextDate);
-  return entriesWithDate[0] || null;
-}
-
-function getNextDateForItalianWeekday(dayName, timeValue) {
-  const weekdayMap = {
-    "Domenica": 0,
-    "Lunedì": 1,
-    "Martedì": 2,
-    "Mercoledì": 3,
-    "Giovedì": 4,
-    "Venerdì": 5,
-    "Sabato": 6
-  };
-
-  const targetDay = weekdayMap[dayName];
-  const now = new Date();
-  const currentDay = now.getDay();
-
-  let delta = targetDay - currentDay;
-  if (delta < 0) delta += 7;
-
-  const result = new Date(now);
-  result.setDate(now.getDate() + delta);
-
-  const [hours, minutes] = (timeValue || "12:00").split(":").map(Number);
-  result.setHours(hours || 12, minutes || 0, 0, 0);
-
-  if (delta === 0 && result.getTime() < now.getTime()) {
-    result.setDate(result.getDate() + 7);
-  }
-
-  return result;
+  localStorage.removeItem(STORAGE_KEY_PLAN);
+  localStorage.removeItem(STORAGE_KEY_CART);
+  renderAll();
 }
