@@ -1,5 +1,6 @@
 const STORAGE_KEY_PLAN = "piano_pasti_avena_v3";
 const STORAGE_KEY_CART = "piano_pasti_avena_carrello_v3";
+const STORAGE_KEY_APP_INSTALLED_HINT = "piano_pasti_avena_app_installed_hint";
 
 const DAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
 const MEALS = ["Colazione", "Pranzo", "Cena", "Snack"];
@@ -26,11 +27,16 @@ const installBoxEl = document.getElementById("installBox");
 const installAppBtn = document.getElementById("installAppBtn");
 const installAndroidBlock = document.getElementById("installAndroidBlock");
 const installIosBlock = document.getElementById("installIosBlock");
+const installGenericBlock = document.getElementById("installGenericBlock");
 
 const shoppingView = document.getElementById("shoppingView");
 const planView = document.getElementById("planView");
 const tabShoppingBtn = document.getElementById("tabShoppingBtn");
 const tabPlanBtn = document.getElementById("tabPlanBtn");
+
+const copyFallbackEl = document.getElementById("copyFallback");
+const copyAreaEl = document.getElementById("copyArea");
+const selectCopyBtnEl = document.getElementById("selectCopyBtn");
 
 document.getElementById("addMealBtn").addEventListener("click", addMeal);
 document.getElementById("clearAllBtn").addEventListener("click", clearAll);
@@ -45,6 +51,10 @@ recipeSearchEl.addEventListener("input", renderRecipeOptions);
 
 if (installAppBtn) {
   installAppBtn.addEventListener("click", installApp);
+}
+
+if (selectCopyBtnEl) {
+  selectCopyBtnEl.addEventListener("click", selectCopyText);
 }
 
 init();
@@ -68,34 +78,52 @@ function isAndroid() {
 function isRunningAsApp() {
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
+    window.matchMedia("(display-mode: fullscreen)").matches ||
+    window.matchMedia("(display-mode: minimal-ui)").matches ||
     window.navigator.standalone === true
   );
+}
+
+function setInstallHint() {
+  localStorage.setItem(STORAGE_KEY_APP_INSTALLED_HINT, "1");
+}
+
+function clearInstallHint() {
+  localStorage.removeItem(STORAGE_KEY_APP_INSTALLED_HINT);
 }
 
 function setupInstallExperience() {
   if (installAndroidBlock) installAndroidBlock.classList.add("hidden");
   if (installIosBlock) installIosBlock.classList.add("hidden");
+  if (installGenericBlock) installGenericBlock.classList.add("hidden");
 
   if (isRunningAsApp()) {
+    setInstallHint();
     if (installBoxEl) installBoxEl.classList.add("hidden");
     return;
+  } else {
+    clearInstallHint();
   }
 
   if (isIOS()) {
     if (installIosBlock) installIosBlock.classList.remove("hidden");
   } else if (isAndroid()) {
     if (installAndroidBlock) installAndroidBlock.classList.remove("hidden");
+  } else {
+    if (installGenericBlock) installGenericBlock.classList.remove("hidden");
   }
 
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredPrompt = e;
+
     if (installAppBtn && isAndroid()) {
       installAppBtn.classList.remove("hidden");
     }
   });
 
   window.addEventListener("appinstalled", () => {
+    setInstallHint();
     if (installBoxEl) installBoxEl.classList.add("hidden");
   });
 }
@@ -123,6 +151,7 @@ function loadCategories() {
   );
 
   categoryFilterEl.innerHTML = `<option value="Tutte">Tutte</option>`;
+
   categories.forEach(cat => {
     const option = document.createElement("option");
     option.value = cat;
@@ -141,6 +170,7 @@ function renderRecipeOptions() {
       !search ||
       recipe.title.toLowerCase().includes(search) ||
       recipe.ingredients.some(ing => ing.name.toLowerCase().includes(search));
+
     return categoryMatch && textMatch;
   });
 
@@ -185,7 +215,7 @@ function setMsg(text, type = "") {
 }
 
 function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, char => ({
+  return String(str).replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
@@ -197,6 +227,7 @@ function escapeHtml(str) {
 function getStoredPlan() {
   const raw = localStorage.getItem(STORAGE_KEY_PLAN);
   if (!raw) return [];
+
   try {
     return JSON.parse(raw) || [];
   } catch {
@@ -211,6 +242,7 @@ function saveStoredPlan(plan) {
 function getStoredCartKeys() {
   const raw = localStorage.getItem(STORAGE_KEY_CART);
   if (!raw) return [];
+
   try {
     return JSON.parse(raw) || [];
   } catch {
@@ -298,6 +330,7 @@ function buildShoppingList(plan) {
 function renderShopping() {
   const shoppingTbody = document.querySelector("#shoppingTable tbody");
   const cartTbody = document.querySelector("#cartTable tbody");
+
   shoppingTbody.innerHTML = "";
   cartTbody.innerHTML = "";
 
@@ -345,12 +378,14 @@ function moveToCart(key) {
     saveStoredCartKeys(cartKeys);
   }
   renderShopping();
+  hideCopyFallback();
 }
 
 function removeFromCart(key) {
   const updated = getStoredCartKeys().filter(item => item !== key);
   saveStoredCartKeys(updated);
   renderShopping();
+  hideCopyFallback();
 }
 
 function cleanCartFromUnavailableIngredients() {
@@ -435,6 +470,7 @@ function deleteMeal(id) {
   saveStoredPlan(plan);
   cleanCartFromUnavailableIngredients();
   renderAll();
+  hideCopyFallback();
 }
 
 async function copyShopping() {
@@ -454,12 +490,39 @@ async function copyShopping() {
   try {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
+      hideCopyFallback();
       setMsg("✅ Lista copiata negli appunti.", "ok");
       return;
     }
-  } catch (err) {}
+  } catch (err) {
+    // fallback sotto
+  }
 
-  window.prompt("Copia manualmente la lista qui sotto:", text);
+  showCopyFallback(text);
+}
+
+function showCopyFallback(text) {
+  if (!copyFallbackEl || !copyAreaEl) {
+    window.prompt("Copia manualmente la lista qui sotto:", text);
+    return;
+  }
+
+  copyAreaEl.value = text;
+  copyFallbackEl.classList.remove("hidden");
+  setMsg("ℹ️ Copia automatica non disponibile. Usa la copia manuale qui sotto.", "");
+}
+
+function hideCopyFallback() {
+  if (!copyFallbackEl || !copyAreaEl) return;
+  copyFallbackEl.classList.add("hidden");
+  copyAreaEl.value = "";
+}
+
+function selectCopyText() {
+  if (!copyAreaEl) return;
+  copyAreaEl.focus();
+  copyAreaEl.select();
+  copyAreaEl.setSelectionRange(0, copyAreaEl.value.length);
 }
 
 function clearAll() {
@@ -469,4 +532,6 @@ function clearAll() {
   localStorage.removeItem(STORAGE_KEY_PLAN);
   localStorage.removeItem(STORAGE_KEY_CART);
   renderAll();
+  hideCopyFallback();
+  setMsg("✅ Tutto cancellato.", "ok");
 }
